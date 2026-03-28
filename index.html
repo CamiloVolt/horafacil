@@ -870,15 +870,32 @@
                 return result.toString(16).toUpperCase().padStart(4, '0');
             }
             function formatF(id, val) { let vStr = val.toString(); return id + vStr.length.toString().padStart(2, '0') + vStr; }
-            let safeKey = pixKey.trim(); let justNums = safeKey.replace(/\D/g, '');
-            if (justNums.length === 13 && justNums.startsWith('55')) { safeKey = '+' + justNums; }
-            else if (/^\(?\d{2}\)?\s*9?\d{4}-?\d{4}$/.test(safeKey)) { if (justNums.length === 10 || justNums.length === 11) { safeKey = '+55' + justNums; } }
-            else { safeKey = safeKey.replace(/\s+/g, ''); }
+            
+            let safeKey = pixKey.trim(); 
+            let justNums = safeKey.replace(/\D/g, '');
+            if (safeKey.includes('@')) {
+                safeKey = safeKey.toLowerCase();
+            } else if (justNums.length === 11) { 
+                // Se tem 11 e não tem @, pode ser CPF ou celular sem 55. A API do PIX geralmente aceita sem o 55 mas vamos padronizar chaves numéricas longas limpas.
+                // Mas não podemos forçar +55 em CPF. CPF é só numeros
+                safeKey = justNums; 
+            } else if (justNums.length === 13 && justNums.startsWith('55')) { 
+                // Celular 100% com 55 => exige o +
+                safeKey = '+' + justNums; 
+            } else if (justNums.length === 14) {
+                // CNPJ
+                safeKey = justNums;
+            } else {
+                safeKey = safeKey.replace(/\s+/g, '');
+            }
+
             let payloadKey = formatF("00", "br.gov.bcb.pix") + formatF("01", safeKey);
             let p = formatF("00", "01") + formatF("26", payloadKey) + formatF("52", "0000") + formatF("53", "986") + (amount > 0 ? formatF("54", amount.toFixed(2)) : '');
-            let safeName = merchantName.replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 25) || 'Vendedor';
-            let safeCity = merchantCity.replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 15) || 'Cidade';
-            p += formatF("58", "BR") + formatF("59", safeName) + formatF("60", safeCity) + formatF("62", formatF("05", "***")) + "6304";
+            
+            let safeName = merchantName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 25) || 'Vendedor';
+            let safeCity = merchantCity.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 15) || 'Cidade';
+            
+            p += formatF("58", "BR") + formatF("59", safeName) + formatF("60", safeCity) + formatF("62", formatF("05", "HORAFACIL")) + "6304";
             return p + crc16(p);
         }
 
