@@ -710,9 +710,8 @@
         document.getElementById('btn-confirm-delete').onclick = async () => {
              const btn = document.getElementById('btn-confirm-delete');
              btn.disabled = true; btn.innerHTML = 'Excluindo...';
-             try {
+            try {
                   await deleteDoc(doc(db, 'agendamentos', state.agendamentoParaExcluir));
-                  await updateDoc(doc(db, 'negocios', state.user.uid), { contagemMes: increment(-1) });
                   closeDeleteModal();
                   setupOwnerDashboard(); // refresh
              } catch(e) {
