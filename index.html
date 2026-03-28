@@ -249,15 +249,8 @@
             appId: "1:768284219651:web:4bd553adcef0ec78993136"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        let state = {
-            user: null, negocio: null, clientNegocio: null,
-            selectedService: null, selectedDate: null, selectedTime: null
-        };
+        let app, auth, db, provider;
+        let initResolved = false;
 
         const Views = {
             show: (id) => {
@@ -268,28 +261,85 @@
             }
         };
 
+        const showErrorLogin = (msg = 'Erro ao conectar, tente novamente') => {
+            if (initResolved) return;
+            initResolved = true;
+            Views.show('view-login');
+            if(!document.getElementById('login-err-msg')) {
+               const err = document.createElement('p');
+               err.id = 'login-err-msg';
+               err.className = 'text-red-400 bg-red-400/10 p-3 rounded-lg font-medium mb-6 w-full max-w-xs';
+               err.textContent = msg;
+               document.getElementById('view-login').prepend(err);
+            }
+        };
+
+        const timeoutId = setTimeout(() => {
+            if (!initResolved) showErrorLogin();
+        }, 5000);
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            provider = new GoogleAuthProvider();
+        } catch (error) {
+            console.error("Firebase init error:", error);
+            showErrorLogin('Erro ao inicializar serviços da conta.');
+        }
+
+        let state = {
+            user: null, negocio: null, clientNegocio: null,
+            selectedService: null, selectedDate: null, selectedTime: null
+        };
+
         async function init() {
             createBubbles();
             const urlParams = new URLSearchParams(window.location.search);
             const negocioId = urlParams.get('negocio');
             
             if (negocioId) {
-                await setupClientView(negocioId);
+                try {
+                    await setupClientView(negocioId);
+                    if (!initResolved) { initResolved = true; clearTimeout(timeoutId); }
+                } catch (err) {
+                    console.error("Client view error:", err);
+                    showErrorLogin();
+                }
             } else {
+                if (!auth) return;
                 onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        state.user = user;
-                        const docRef = doc(db, 'negocios', user.uid);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            state.negocio = docSnap.data();
-                            setupOwnerDashboard();
+                    try {
+                        if (user) {
+                            state.user = user;
+                            const docRef = doc(db, 'negocios', user.uid);
+                            const docSnap = await getDoc(docRef);
+                            // Se já resolveu via timeout e o usuário loga normalmente ou existia:
+                            if (docSnap.exists()) {
+                                state.negocio = docSnap.data();
+                                if (!initResolved || !document.getElementById('view-login').className.includes('hidden-view')) {
+                                    setupOwnerDashboard();
+                                }
+                            } else {
+                                if (!initResolved || !document.getElementById('view-login').className.includes('hidden-view')) {
+                                    Views.show('view-owner-config');
+                                }
+                            }
                         } else {
-                            Views.show('view-owner-config');
+                            if (!initResolved) Views.show('view-login');
                         }
-                    } else {
-                        Views.show('view-login');
+                        
+                        if (!initResolved) {
+                            initResolved = true;
+                            clearTimeout(timeoutId);
+                        }
+                    } catch (err) {
+                        console.error("Auth resolve error:", err);
+                        showErrorLogin();
                     }
+                }, (error) => {
+                    console.error("Auth state error:", error);
+                    showErrorLogin();
                 });
             }
         }
