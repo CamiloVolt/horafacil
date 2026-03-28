@@ -314,7 +314,7 @@
                         <li>✓ Notificações automáticas</li>
                         <li>✓ Página personalizada</li>
                     </ul>
-                    <button class="w-full py-2 bg-brandBlue hover:bg-blue-600 text-white font-bold rounded-lg transition" onclick="alert('Funcionalidade de pagamento em breve!')">Assinar Pro</button>
+                    <button class="w-full py-2 bg-brandBlue hover:bg-blue-600 text-white font-bold rounded-lg transition" onclick="window.assinarPlano('Pro', 19.90, this)">Assinar Pro</button>
                 </div>
                 <!-- Premium -->
                 <div class="bg-darkBg border border-gray-700 p-6 rounded-xl flex flex-col items-center text-center">
@@ -325,7 +325,7 @@
                         <li>✓ Lembretes Automáticos</li>
                         <li>✓ Relatório Mensal</li>
                     </ul>
-                    <button class="w-full py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-bold rounded-lg transition" onclick="alert('Funcionalidade de pagamento em breve!')">Assinar Premium</button>
+                    <button class="w-full py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-bold rounded-lg transition" onclick="window.assinarPlano('Premium', 29.90, this)">Assinar Premium</button>
                 </div>
             </div>
         </div>
@@ -434,6 +434,33 @@
                     try {
                         if (user) {
                             state.user = user;
+                            
+                            // CHECK SUBSCRIPTION RETURN
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const pId = urlParams.get('preapproval_id');
+                            if (pId) {
+                                try {
+                                    const token = 'APP_USR-1134661133251593-032819-c88654e570bedeb5fc4242775187729e-415898030';
+                                    const res = await fetch(`https://api.mercadopago.com/preapproval/${pId}`, {
+                                        headers: { "Authorization": `Bearer ${token}` }
+                                    });
+                                    const data = await res.json();
+                                    if (data.status === 'authorized') {
+                                        const newPlan = data.reason.includes('Premium') ? 'Premium' : 'Pro';
+                                        await updateDoc(doc(db, 'negocios', user.uid), { plano: newPlan });
+                                        alert(`🎉 Assinatura concluída! Seu plano agora é ${newPlan}.`);
+                                    } else {
+                                        alert('Assinatura ainda não aprovada ou pendente no Mercado Pago.');
+                                    }
+                                } catch(e) {
+                                    console.error('Erro ao verificar assinatura:', e);
+                                    alert('Erro ao verificar status da assinatura.');
+                                }
+                                urlParams.delete('preapproval_id');
+                                const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+                                window.history.replaceState({}, '', newUrl);
+                            }
+
                             const docRef = doc(db, 'negocios', user.uid);
                             const docSnap = await getDoc(docRef);
                             // Se já resolveu via timeout e o usuário loga normalmente ou existia:
@@ -746,6 +773,56 @@
                 console.error(e); alert("Erro ao marcar como pago.");
                 btnEl.textContent = originalText;
                 btnEl.disabled = false;
+            }
+        };
+
+        window.assinarPlano = async (plano, preco, btnEl) => {
+            const user = auth?.currentUser;
+            if (!user || !user.email) {
+                alert("Você precisa estar logado para assinar.");
+                return;
+            }
+            
+            const originalText = btnEl.textContent;
+            btnEl.disabled = true;
+            btnEl.textContent = 'Gerando link...';
+
+            const token = 'APP_USR-1134661133251593-032819-c88654e570bedeb5fc4242775187729e-415898030';
+            const body = {
+                reason: `HoraFácil ${plano}`,
+                auto_recurring: {
+                    frequency: 1,
+                    frequency_type: "months",
+                    transaction_amount: preco,
+                    currency_id: "BRL"
+                },
+                back_url: "https://camilovolt.github.io/horafacil",
+                payer_email: user.email
+            };
+
+            try {
+                const res = await fetch("https://api.mercadopago.com/preapproval", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (data.init_point) {
+                    window.location.href = data.init_point;
+                } else {
+                    console.error('Erro na resposta do MP:', data);
+                    alert("Erro ao gerar link de pagamento.");
+                    btnEl.disabled = false;
+                    btnEl.textContent = originalText;
+                }
+            } catch(e) {
+                console.error('Erro de rede:', e);
+                alert("Erro ao conectar com Mercado Pago.");
+                btnEl.disabled = false;
+                btnEl.textContent = originalText;
             }
         };
 
