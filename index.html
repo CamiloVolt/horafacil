@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoraFácil</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -74,6 +75,17 @@
                     <div><label class="block text-sm text-gray-300 mb-1">Logo (Opcional)</label><input type="file" id="cfg-logo" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brandBlue/20 file:text-brandBlue hover:file:bg-brandBlue/30 bg-darkBg border border-gray-700 rounded-lg p-2 focus:border-brandBlue focus:outline-none"></div>
                     <div><label class="block text-sm text-gray-300 mb-1">Tipo</label><select id="cfg-tipo" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"><option value="Salão">Salão de Beleza</option><option value="Barbearia">Barbearia</option><option value="Tatuagem">Estúdio de Tatuagem</option><option value="Outro">Outro</option></select></div>
                     <div class="flex gap-4"><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">WhatsApp</label><input type="text" id="cfg-whatsapp" required placeholder="5511999999999" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">Email Público</label><input type="email" id="cfg-email" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div></div>
+                    <hr class="border-gray-700 my-4">
+                    <h3 class="font-semibold text-lg">Pagamento Antecipado (PIX)</h3>
+                    <label class="flex items-center space-x-2 cursor-pointer mb-2">
+                        <input type="checkbox" id="cfg-pix-toggle" class="w-4 h-4 accent-brandBlue">
+                        <span class="text-sm text-gray-300">Aceitar pagamento via PIX?</span>
+                    </label>
+                    <div id="cfg-pix-fields" class="hidden-view space-y-3 p-4 bg-[#0f172a] border border-gray-700 rounded-lg">
+                        <div><label class="block text-xs text-gray-400 mb-1">Chave PIX</label><input type="text" id="cfg-pix-key" placeholder="CPF, CNPJ, Email ou Celular" class="w-full bg-darkCard border border-gray-700 rounded p-2 text-sm text-white focus:border-brandBlue focus:outline-none"></div>
+                        <div><label class="block text-xs text-gray-400 mb-1">Nome do Titular do PIX</label><input type="text" id="cfg-pix-name" placeholder="Nome exato sem acentos" class="w-full bg-darkCard border border-gray-700 rounded p-2 text-sm text-white focus:border-brandBlue focus:outline-none"></div>
+                        <div><label class="block text-xs text-gray-400 mb-1">Cidade da Conta</label><input type="text" id="cfg-pix-city" placeholder="Sua cidade" class="w-full bg-darkCard border border-gray-700 rounded p-2 text-sm text-white focus:border-brandBlue focus:outline-none"></div>
+                    </div>
                     <hr class="border-gray-700 my-4">
                     <h3 class="font-semibold text-lg">Serviços</h3>
                     <div id="servicos-list" class="space-y-2"><div class="flex gap-2 servico-item"><input type="text" placeholder="Corte degradê" value="Corte Padrão" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="45.00" value="40" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"></div></div>
@@ -192,9 +204,23 @@
                         <input type="text" id="client-nome" required placeholder="Seu nome completo" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none">
                         <input type="text" id="client-whatsapp" required placeholder="Seu WhatsApp (apenas números)" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none">
                         <button type="submit" id="btn-confirm-booking" class="w-full bg-brandBlue hover:bg-blue-600 text-white font-bold py-3 mt-4 rounded-lg transition-colors flex justify-center items-center gap-2">
-                            <span>Confirmar Agendamento</span> (<span id="client-summary-price">R$ 0</span>)
+                            <span>Continuar</span> (<span id="client-summary-price">R$ 0</span>)
                         </button>
                     </form>
+                </div>
+                <!-- Step 5 (PIX) -->
+                <div id="client-step-5" class="hidden-view mt-6 border-t border-brandBlue pt-6 transition-all duration-300">
+                    <h3 class="font-semibold text-lg flex items-center justify-center gap-2 mb-4 text-brandBlue"><svg class="w-6 h-6 text-[#32bcad]" viewBox="0 0 512 512" fill="currentColor"><path d="M124.3 227.6L227.6 124.3c15.6-15.6 40.9-15.6 56.6 0l103.4 103.4c15.6 15.6 15.6 40.9 0 56.6L284.2 387.7c-15.6-15.6-40.9 15.6-56.6 0L124.3 284.2c-15.6-15.6-15.6-40.9 0-56.6zm0 0"/></svg> Pagamento via PIX</h3>
+                    <div class="bg-darkBg border border-brandBlue/50 rounded-xl p-5 text-center shadow-lg">
+                        <p class="text-gray-300 text-base mb-3">Escaneie o QR Code abaixo para pagar <br><span class="text-white font-black text-2xl" id="pix-total-val">R$ 0,00</span></p>
+                        <div id="pix-qrcode" class="flex justify-center bg-white p-3 rounded-xl w-52 h-52 mx-auto mb-5 shadow-inner"></div>
+                        <p class="text-sm text-gray-400 mb-2">Ou utilize a opção PIX Copia e Cola:</p>
+                        <div class="flex gap-2 mb-5">
+                            <input type="text" id="pix-emv-code" readonly class="w-full bg-[#0f172a] border border-gray-700 rounded-lg p-3 text-xs text-brandBlue font-mono text-center">
+                            <button type="button" id="btn-copy-pix" class="bg-brandBlue/20 border border-brandBlue text-brandBlue px-4 rounded-lg text-sm font-bold hover:bg-brandBlue hover:text-white transition">Copiar</button>
+                        </div>
+                        <button type="button" id="btn-pix-done" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 text-lg rounded-lg transition-colors shadow-lg">Já paguei - Confirmar Agendamento</button>
+                    </div>
                 </div>
                 <!-- Rate Limit Reached Message -->
                 <div id="client-limit-reached" class="hidden-view mt-6 text-center text-red-400 bg-red-400/10 p-4 rounded-xl">
@@ -472,6 +498,13 @@
                 });
             }
 
+            const pixData = {
+                active: document.getElementById('cfg-pix-toggle').checked,
+                key: document.getElementById('cfg-pix-key').value,
+                name: document.getElementById('cfg-pix-name').value,
+                city: document.getElementById('cfg-pix-city').value
+            };
+
             const data = {
                 uid: state.user.uid,
                 nome: document.getElementById('cfg-nome').value,
@@ -479,6 +512,7 @@
                 whatsapp: document.getElementById('cfg-whatsapp').value,
                 email: document.getElementById('cfg-email').value,
                 servicos,
+                pix: pixData,
                 horarios: { dias, inicio: document.getElementById('cfg-hora-inicio').value, fim: document.getElementById('cfg-hora-fim').value }
             };
             if (logoBase64) data.logo = logoBase64;
@@ -497,6 +531,11 @@
             setupOwnerDashboard();
         };
 
+        document.getElementById('cfg-pix-toggle').onchange = (e) => {
+            if(e.target.checked) document.getElementById('cfg-pix-fields').classList.remove('hidden-view');
+            else document.getElementById('cfg-pix-fields').classList.add('hidden-view');
+        };
+
         document.getElementById('btn-edit-business').onclick = () => {
             state.editing = true;
             document.getElementById('config-title').textContent = "Editar Negócio";
@@ -510,6 +549,14 @@
             document.getElementById('cfg-whatsapp').value = state.negocio.whatsapp || '';
             document.getElementById('cfg-email').value = state.negocio.email || '';
             document.getElementById('cfg-logo').value = '';
+            
+            const pixD = state.negocio.pix || {active:false};
+            document.getElementById('cfg-pix-toggle').checked = pixD.active;
+            if(pixD.active) document.getElementById('cfg-pix-fields').classList.remove('hidden-view');
+            else document.getElementById('cfg-pix-fields').classList.add('hidden-view');
+            document.getElementById('cfg-pix-key').value = pixD.key || '';
+            document.getElementById('cfg-pix-name').value = pixD.name || '';
+            document.getElementById('cfg-pix-city').value = pixD.city || '';
             
             const servicosList = document.getElementById('servicos-list');
             servicosList.innerHTML = '';
@@ -730,9 +777,47 @@
             });
         }
 
-        document.getElementById('form-client-booking').onsubmit = async (e) => {
+        document.getElementById('form-client-booking').onsubmit = (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-confirm-booking'); btn.disabled = true; btn.innerHTML = 'Processando...';
+            
+            const pixData = state.clientNegocio.pix;
+            if (pixData && pixData.active && pixData.key && pixData.name && pixData.city) {
+                document.getElementById('client-step-4').classList.add('opacity-50', 'pointer-events-none');
+                document.getElementById('client-step-5').classList.remove('hidden-view');
+                
+                const totalVal = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0);
+                document.getElementById('pix-total-val').textContent = `R$ ${totalVal.toFixed(2)}`;
+                
+                const emvStr = generatePixPayload(pixData.key, pixData.name, pixData.city, totalVal);
+                document.getElementById('pix-emv-code').value = emvStr;
+                
+                document.getElementById('pix-qrcode').innerHTML = '';
+                new QRCode(document.getElementById('pix-qrcode'), {
+                    text: emvStr, width: 208, height: 208, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
+                });
+                
+                document.getElementById('client-step-5').scrollIntoView({ behavior: 'smooth' });
+                btn.disabled = false; btn.innerHTML = 'Continuar'; // reset this button in case they go back
+            } else {
+                finalizeBooking(false); // No PIX enabled
+            }
+        };
+
+        document.getElementById('btn-copy-pix').onclick = () => {
+             const input = document.getElementById('pix-emv-code');
+             input.select(); input.setSelectionRange(0, 99999);
+             navigator.clipboard.writeText(input.value);
+             const btn = document.getElementById('btn-copy-pix');
+             btn.textContent = "Copiado!"; setTimeout(() => btn.textContent = "Copiar", 2000);
+        };
+
+        document.getElementById('btn-pix-done').onclick = () => {
+             const btn = document.getElementById('btn-pix-done'); btn.disabled = true; btn.innerHTML = 'Processando...';
+             finalizeBooking(true);
+        };
+
+        async function finalizeBooking(paidWithPix) {
             const nome = document.getElementById('client-nome').value;
             const zap = document.getElementById('client-whatsapp').value.replace(/\D/g, ''); // just numbers
 
@@ -747,23 +832,55 @@
             };
 
             try {
-                // Save to Firebase
                 await addDoc(collection(db, 'agendamentos'), agendamento);
                 await updateDoc(doc(db, 'negocios', state.clientNegocio.uid), { contagemMes: increment(1) });
                 
-                // Show Success & Open WhatsApp
                 Views.show('view-success');
                 const [y, m, d] = state.selectedDate.split('-');
                 const totalVal = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0).toFixed(2);
                 const namesText = state.selectedServices.map(s => s.nome).join(' + ');
-                const waText = `Novo agendamento HoraFácil!\n*Nome:* ${nome}\n*Serviços:* ${namesText}\n*Total:* R$ ${totalVal}\n*Data:* ${d}/${m}/${y}\n*Horário:* ${state.selectedTime}\n*WhatsApp Cliente:* ${zap}`;
+                
+                let waText = `Novo agendamento HoraFácil!\n*Nome:* ${nome}\n*Serviços:* ${namesText}\n*Total:* R$ ${totalVal}\n*Data:* ${d}/${m}/${y}\n*Horário:* ${state.selectedTime}\n*WhatsApp Cliente:* ${zap}`;
+                
+                if (paidWithPix) {
+                    waText += `\n\n💰 Pagamento PIX enviado pelo cliente - aguardando sua confirmação (R$ ${totalVal})`;
+                }
+                
                 const waLink = `https://wa.me/${state.clientNegocio.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(waText)}`;
                 window.open(waLink, '_blank');
             } catch (err) {
                 console.error(err); alert('Erro ao agendar. Tente novamente.');
-                btn.disabled = false; btn.innerHTML = 'Confirmar Agendamento';
+                if (paidWithPix) {
+                    const btnPix = document.getElementById('btn-pix-done');
+                    btnPix.disabled = false; btnPix.innerHTML = 'Já paguei - Confirmar Agendamento';
+                } else {
+                    const btnC = document.getElementById('btn-confirm-booking');
+                    btnC.disabled = false; btnC.innerHTML = 'Continuar';
+                }
             }
-        };
+        }
+
+        function generatePixPayload(pixKey, merchantName, merchantCity, amount) {
+            function crc16(payload) {
+                let polynomial = 0x1021; let result = 0xFFFF;
+                for (let i = 0; i < payload.length; i++) {
+                    result ^= (payload.charCodeAt(i) << 8);
+                    for (let j = 0; j < 8; j++) { if ((result & 0x8000) !== 0) { result = ((result << 1) ^ polynomial) & 0xFFFF; } else { result = (result << 1) & 0xFFFF; } }
+                }
+                return result.toString(16).toUpperCase().padStart(4, '0');
+            }
+            function formatF(id, val) { let vStr = val.toString(); return id + vStr.length.toString().padStart(2, '0') + vStr; }
+            let safeKey = pixKey.trim(); let justNums = safeKey.replace(/\D/g, '');
+            if (justNums.length === 13 && justNums.startsWith('55')) { safeKey = '+' + justNums; }
+            else if (/^\(?\d{2}\)?\s*9?\d{4}-?\d{4}$/.test(safeKey)) { if (justNums.length === 10 || justNums.length === 11) { safeKey = '+55' + justNums; } }
+            else { safeKey = safeKey.replace(/\s+/g, ''); }
+            let payloadKey = formatF("00", "br.gov.bcb.pix") + formatF("01", safeKey);
+            let p = formatF("00", "01") + formatF("26", payloadKey) + formatF("52", "0000") + formatF("53", "986") + (amount > 0 ? formatF("54", amount.toFixed(2)) : '');
+            let safeName = merchantName.replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 25) || 'Vendedor';
+            let safeCity = merchantCity.replace(/[^a-zA-Z0-9 ]/g, "").trim().substring(0, 15) || 'Cidade';
+            p += formatF("58", "BR") + formatF("59", safeName) + formatF("60", safeCity) + formatF("62", formatF("05", "***")) + "6304";
+            return p + crc16(p);
+        }
 
         init();
     </script>
