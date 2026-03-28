@@ -70,6 +70,7 @@
                 <p class="text-gray-400 mb-6 text-sm">Configure seu negócio para começar.</p>
                 <form id="form-config" class="space-y-4">
                     <div><label class="block text-sm text-gray-300 mb-1">Nome do Negócio</label><input type="text" id="cfg-nome" required class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div>
+                    <div><label class="block text-sm text-gray-300 mb-1">Logo (Opcional)</label><input type="file" id="cfg-logo" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brandBlue/20 file:text-brandBlue hover:file:bg-brandBlue/30 bg-darkBg border border-gray-700 rounded-lg p-2 focus:border-brandBlue focus:outline-none"></div>
                     <div><label class="block text-sm text-gray-300 mb-1">Tipo</label><select id="cfg-tipo" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"><option value="Salão">Salão de Beleza</option><option value="Barbearia">Barbearia</option><option value="Tatuagem">Estúdio de Tatuagem</option><option value="Outro">Outro</option></select></div>
                     <div class="flex gap-4"><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">WhatsApp</label><input type="text" id="cfg-whatsapp" required placeholder="5511999999999" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">Email Público</label><input type="email" id="cfg-email" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div></div>
                     <hr class="border-gray-700 my-4">
@@ -131,7 +132,11 @@
         <!-- CLIENT VIEW -->
         <div id="view-client" class="hidden-view mt-4">
             <div class="bg-darkCard p-6 rounded-2xl shadow-xl">
-                <div class="text-center mb-6">
+                <div class="text-center mb-6 flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full bg-darkBg border-2 border-brandBlue flex items-center justify-center mb-3 overflow-hidden text-2xl font-bold uppercase text-brandBlue">
+                        <img id="client-b-logo" class="w-full h-full object-cover hidden-view" alt="Logo">
+                        <span id="client-b-initial" class="hidden-view"></span>
+                    </div>
                     <h1 class="text-2xl font-bold" id="client-b-name">--</h1>
                     <p class="text-brandBlue text-sm" id="client-b-type">--</p>
                 </div>
@@ -405,9 +410,20 @@
             });
             const dias = Array.from(document.querySelectorAll('#cfg-dias input:checked')).map(cb => parseInt(cb.value));
             
+            let logoBase64 = null;
+            const logoFile = document.getElementById('cfg-logo').files[0];
+            if (logoFile) {
+                logoBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(logoFile);
+                });
+            }
+
             const data = {
                 uid: state.user.uid,
                 nome: document.getElementById('cfg-nome').value,
+                logo: logoBase64,
                 tipo: document.getElementById('cfg-tipo').value,
                 whatsapp: document.getElementById('cfg-whatsapp').value,
                 email: document.getElementById('cfg-email').value,
@@ -496,6 +512,19 @@
 
             document.getElementById('client-b-name').textContent = state.clientNegocio.nome;
             document.getElementById('client-b-type').textContent = state.clientNegocio.tipo;
+
+            const logoImg = document.getElementById('client-b-logo');
+            const logoInitial = document.getElementById('client-b-initial');
+            if (state.clientNegocio.logo) {
+                 logoImg.src = state.clientNegocio.logo;
+                 logoImg.classList.remove('hidden-view');
+                 logoInitial.classList.add('hidden-view');
+            } else {
+                 logoImg.classList.add('hidden-view');
+                 logoInitial.textContent = state.clientNegocio.nome.charAt(0);
+                 logoInitial.classList.remove('hidden-view');
+            }
+
             Views.show('view-client');
         }
 
