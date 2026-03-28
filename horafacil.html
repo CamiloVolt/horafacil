@@ -39,10 +39,25 @@
 
         <!-- LOGIN VIEW -->
         <div id="view-login" class="hidden-view min-h-[80vh] flex flex-col items-center justify-center text-center">
-            <div class="relative w-32 h-32 mb-4">
+            <div class="relative w-32 h-32 mb-4 flex items-center justify-center">
                 <div class="glow absolute top-10 w-24 h-24 bg-brandBlue opacity-20 filter blur-xl animate-pulse left-4"></div>
-                <div class="sloth-container w-full h-full relative z-10">
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                
+                <!-- Clock Background -->
+                <svg viewBox="0 0 100 100" class="absolute w-[200px] h-[200px] opacity-80 z-0 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#60a5fa" stroke-width="2" stroke-opacity="0.2"/>
+                    <circle cx="50" cy="50" r="2" fill="#60a5fa" opacity="0.5"/>
+                    <text x="50" y="16" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">12</text>
+                    <text x="88" y="53.5" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">3</text>
+                    <text x="50" y="91" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">6</text>
+                    <text x="12" y="53.5" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">9</text>
+                    <line class="clock-hour" x1="50" y1="50" x2="50" y2="28" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+                    <line class="clock-min" x1="50" y1="50" x2="50" y2="15" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+                    <line class="clock-sec" x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+
+                <!-- Sloth Foreground -->
+                <div class="sloth-container w-20 h-20 relative z-10 drop-shadow-2xl">
+                    <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                         <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
                         <path d="M30,20 Q25,40 40,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
                         <path d="M70,22 Q75,40 60,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
@@ -126,9 +141,9 @@
                         <text x="88" y="53.5" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">3</text>
                         <text x="50" y="91" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">6</text>
                         <text x="12" y="53.5" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" opacity="0.4">9</text>
-                        <line id="clock-hour" x1="50" y1="50" x2="50" y2="28" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
-                        <line id="clock-min" x1="50" y1="50" x2="50" y2="15" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
-                        <line id="clock-sec" x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
+                        <line class="clock-hour" x1="50" y1="50" x2="50" y2="28" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+                        <line class="clock-min" x1="50" y1="50" x2="50" y2="15" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+                        <line class="clock-sec" x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
                     </svg>
                     
                     <!-- Sloth Foreground -->
@@ -1035,10 +1050,10 @@
             return p + crc16(p);
         }
         function updateClock() {
-            const secH = document.getElementById('clock-sec');
-            const minH = document.getElementById('clock-min');
-            const hrH = document.getElementById('clock-hour');
-            if(secH && minH && hrH) {
+            const secHs = document.querySelectorAll('.clock-sec');
+            const minHs = document.querySelectorAll('.clock-min');
+            const hrHs = document.querySelectorAll('.clock-hour');
+            if(secHs.length > 0) {
                 const now = new Date();
                 const sec = now.getSeconds();
                 const min = now.getMinutes();
@@ -1048,9 +1063,9 @@
                 const minDeg = (min * 6) + (sec * 0.1);
                 const hrDeg = (hr * 30) + (min * 0.5);
                 
-                secH.setAttribute('transform', `rotate(${secDeg} 50 50)`);
-                minH.setAttribute('transform', `rotate(${minDeg} 50 50)`);
-                hrH.setAttribute('transform', `rotate(${hrDeg} 50 50)`);
+                secHs.forEach(el => el.setAttribute('transform', `rotate(${secDeg} 50 50)`));
+                minHs.forEach(el => el.setAttribute('transform', `rotate(${minDeg} 50 50)`));
+                hrHs.forEach(el => el.setAttribute('transform', `rotate(${hrDeg} 50 50)`));
             }
         }
         setInterval(updateClock, 1000);
