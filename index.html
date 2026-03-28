@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoraFácil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { darkBg: '#0f172a', darkCard: '#1e293b', brandBlue: '#60a5fa' } } }
+        }
+    </script>
+    <style>
+        body { margin: 0; padding: 0; overflow-x: hidden; background-color: #0f172a; color: white; font-family: system-ui, -apple-system, sans-serif; }
+        .hidden-view { display: none !important; }
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
+        .bubble { position: absolute; background: rgba(96, 165, 250, 0.2); border-radius: 50%; transition: transform 0.2s ease-out; animation: float 10s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.1); } }
+        .sloth-container { transform-origin: top center; animation: swing 4s infinite ease-in-out; display: inline-block; }
+        @keyframes swing { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+        .glow { box-shadow: 0 0 30px 10px rgba(96, 165, 250, 0.4); border-radius: 50%; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="relative min-h-screen">
+    <!-- Animated Bubbles -->
+    <div id="bubbles" class="bubbles"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="relative z-10 p-4 max-w-lg mx-auto md:max-w-2xl">
+        <!-- LOADING SPINNER -->
+        <div id="view-loading" class="min-h-[80vh] flex flex-col items-center justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-brandBlue mb-4"></div>
+            <p class="text-gray-400">Carregando HoraFácil...</p>
+        </div>
+
+        <!-- LOGIN VIEW -->
+        <div id="view-login" class="hidden-view min-h-[80vh] flex flex-col items-center justify-center text-center">
+            <div class="relative w-32 h-32 mb-4">
+                <div class="glow absolute top-10 w-24 h-24 bg-brandBlue opacity-20 filter blur-xl animate-pulse left-4"></div>
+                <div class="sloth-container w-full h-full relative z-10">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
+                        <path d="M30,20 Q25,40 40,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
+                        <path d="M70,22 Q75,40 60,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
+                        <ellipse cx="50" cy="55" rx="20" ry="25" fill="#cd853f"/>
+                        <ellipse cx="50" cy="50" rx="14" ry="10" fill="#f5deb3"/>
+                        <ellipse cx="43" cy="50" rx="4" ry="3" fill="#8b4513"/><ellipse cx="57" cy="50" rx="4" ry="3" fill="#8b4513"/>
+                        <circle cx="43" cy="50" r="1.5" fill="#fff"/><circle cx="57" cy="50" r="1.5" fill="#fff"/>
+                        <ellipse cx="50" cy="53" rx="2" ry="1.5" fill="#000"/>
+                        <path d="M47,56 Q50,58 53,56" stroke="#000" stroke-width="1" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold mb-2">Hora<span class="text-brandBlue">Fácil</span></h1>
+            <p class="text-gray-400 mb-8">Marque seu horário em segundos!</p>
+            <button id="btn-google-login" class="bg-white text-gray-800 font-semibold py-3 px-6 rounded-full shadow-lg hover:scale-105 transition-all flex items-center space-x-2">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                <span>Continuar com Google</span>
+            </button>
+            <p class="mt-8 text-sm text-gray-500">Grátis para sempre ❤️</p>
+        </div>
+
+        <!-- OWNER INITIAL CONFIG -->
+        <div id="view-owner-config" class="hidden-view">
+            <div class="bg-darkCard p-6 rounded-2xl shadow-xl mt-6">
+                <h2 class="text-2xl font-bold mb-1">Bem-vindo(a)!</h2>
+                <p class="text-gray-400 mb-6 text-sm">Configure seu negócio para começar.</p>
+                <form id="form-config" class="space-y-4">
+                    <div><label class="block text-sm text-gray-300 mb-1">Nome do Negócio</label><input type="text" id="cfg-nome" required class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div>
+                    <div><label class="block text-sm text-gray-300 mb-1">Tipo</label><select id="cfg-tipo" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"><option value="Salão">Salão de Beleza</option><option value="Barbearia">Barbearia</option><option value="Tatuagem">Estúdio de Tatuagem</option><option value="Outro">Outro</option></select></div>
+                    <div class="flex gap-4"><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">WhatsApp</label><input type="text" id="cfg-whatsapp" required placeholder="5511999999999" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div><div class="w-1/2"><label class="block text-sm text-gray-300 mb-1">Email Público</label><input type="email" id="cfg-email" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none"></div></div>
+                    <hr class="border-gray-700 my-4">
+                    <h3 class="font-semibold text-lg">Serviços</h3>
+                    <div id="servicos-list" class="space-y-2"><div class="flex gap-2 servico-item"><input type="text" placeholder="Corte degradê" value="Corte Padrão" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="45.00" value="40" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"></div></div>
+                    <button type="button" id="btn-add-servico" class="text-brandBlue text-sm">+ Adicionar serviço</button>
+                    <hr class="border-gray-700 my-4">
+                    <h3 class="font-semibold text-lg">Horários de Funcionamento</h3>
+                    <p class="text-xs text-gray-400 mb-2">Ex: Seg a Sex, 09:00 às 18:00</p>
+                    <div class="bg-darkBg p-3 rounded-lg border border-gray-700">
+                        <div class="flex flex-wrap gap-2 mb-3" id="cfg-dias">
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="1" checked class="accent-brandBlue"> <span class="text-sm">Seg</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="2" checked class="accent-brandBlue"> <span class="text-sm">Ter</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="3" checked class="accent-brandBlue"> <span class="text-sm">Qua</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="4" checked class="accent-brandBlue"> <span class="text-sm">Qui</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="5" checked class="accent-brandBlue"> <span class="text-sm">Sex</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="6" checked class="accent-brandBlue"> <span class="text-sm">Sáb</span></label>
+                            <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" value="0" class="accent-brandBlue"> <span class="text-sm">Dom</span></label>
+                        </div>
+                        <div class="flex gap-2"><div class="w-1/2"><label class="text-xs text-gray-400">Das</label><input type="time" id="cfg-hora-inicio" value="09:00" class="w-full bg-[#0f172a] border border-gray-700 rounded p-2 text-white"></div><div class="w-1/2"><label class="text-xs text-gray-400">Até</label><input type="time" id="cfg-hora-fim" value="18:00" class="w-full bg-[#0f172a] border border-gray-700 rounded p-2 text-white"></div></div>
+                    </div>
+                    <button type="submit" class="w-full bg-brandBlue hover:bg-blue-600 text-white font-bold py-3 mt-4 rounded-lg transition-colors">Salvar e começar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- OWNER DASHBOARD -->
+        <div id="view-owner-dashboard" class="hidden-view mt-4">
+            <div class="flex justify-between items-center bg-darkCard p-4 rounded-xl shadow mb-6">
+                <div class="flex items-center gap-3">
+                    <img id="dash-photo" src="" alt="User" class="w-12 h-12 rounded-full border border-gray-700">
+                    <div><h2 id="dash-name" class="font-bold">--</h2><p class="text-xs text-brandBlue" id="dash-type">--</p></div>
+                </div>
+                <button id="btn-logout" class="text-gray-400 hover:text-white text-sm">Sair</button>
+            </div>
+            
+            <div class="bg-gradient-to-r from-[#1e293b] to-[#0f172a] p-5 rounded-xl shadow-lg border border-gray-700 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-center md:text-left">
+                    <p class="text-sm text-gray-300 font-medium">Link do seu negócio</p>
+                    <p class="text-xs text-brandBlue mt-1 break-all cursor-pointer hover:underline" id="dash-link">...</p>
+                </div>
+                <button id="btn-copy-link" class="bg-brandBlue/20 text-brandBlue px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brandBlue/30 transition shrink-0">Copiar Link</button>
+            </div>
+
+            <div class="flex gap-4 border-b border-gray-700 mb-4 px-2">
+                <button class="tab-btn w-1/2 text-center pb-2 font-medium text-brandBlue border-b-2 border-brandBlue" data-target="tab-hoje">Hoje</button>
+                <button class="tab-btn w-1/2 text-center pb-2 font-medium text-gray-400 hover:text-gray-200 border-b-2 border-transparent" data-target="tab-semana">Semana</button>
+            </div>
+            <div id="tab-hoje" class="tab-content space-y-3"></div>
+            <div id="tab-semana" class="tab-content space-y-3 hidden-view"></div>
+
+            <div class="mt-8 bg-darkCard p-4 rounded-xl border border-gray-700 text-center">
+                <p class="text-sm text-gray-300"><span id="dash-count" class="font-bold text-white text-lg">0</span> de <span id="dash-limit">5</span> agendamentos usados este mês</p>
+                <div class="w-full bg-gray-700 rounded-full h-2 mt-2 mb-4"><div id="dash-progress" class="bg-brandBlue h-2 rounded-full transition-all" style="width: 0%"></div></div>
+                <button id="btn-open-plans" class="bg-transparent border border-brandBlue text-brandBlue px-4 py-2 rounded-full text-sm font-semibold hover:bg-brandBlue hover:text-white transition w-full">Ver Planos</button>
+            </div>
+        </div>
+
+        <!-- CLIENT VIEW -->
+        <div id="view-client" class="hidden-view mt-4">
+            <div class="bg-darkCard p-6 rounded-2xl shadow-xl">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold" id="client-b-name">--</h1>
+                    <p class="text-brandBlue text-sm" id="client-b-type">--</p>
+                </div>
+                <!-- Step 1 -->
+                <div id="client-step-1" class="transition-all duration-300">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2"><span class="bg-brandBlue text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">1</span> Escolha o Serviço</h3>
+                    <div id="client-services" class="space-y-2"></div>
+                </div>
+                <!-- Step 2 -->
+                <div id="client-step-2" class="hidden-view mt-6 transition-all duration-300">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2"><span class="bg-brandBlue text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">2</span> Escolha o Dia</h3>
+                    <div class="flex overflow-x-auto gap-2 pb-2 custom-scrollbar" id="client-dates"></div>
+                </div>
+                <!-- Step 3 -->
+                <div id="client-step-3" class="hidden-view mt-6 transition-all duration-300">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2"><span class="bg-brandBlue text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">3</span> Escolha o Horário</h3>
+                    <div class="grid grid-cols-3 gap-2" id="client-times"></div>
+                    <p id="client-no-times" class="hidden-view text-sm text-red-400 mt-2">Nenhum horário disponível (+ conflitos).</p>
+                </div>
+                <!-- Step 4 -->
+                <div id="client-step-4" class="hidden-view mt-6 border-t border-gray-700 pt-6 transition-all duration-300">
+                    <h3 class="font-semibold mb-3 text-lg">Seus Dados</h3>
+                    <form id="form-client-booking" class="space-y-3">
+                        <input type="text" id="client-nome" required placeholder="Seu nome completo" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none">
+                        <input type="text" id="client-whatsapp" required placeholder="Seu WhatsApp (apenas números)" class="w-full bg-darkBg border border-gray-700 rounded-lg p-3 text-white focus:border-brandBlue focus:outline-none">
+                        <button type="submit" id="btn-confirm-booking" class="w-full bg-brandBlue hover:bg-blue-600 text-white font-bold py-3 mt-4 rounded-lg transition-colors flex justify-center items-center gap-2">
+                            <span>Confirmar Agendamento</span> (<span id="client-summary-price">R$ 0</span>)
+                        </button>
+                    </form>
+                </div>
+                <!-- Rate Limit Reached Message -->
+                <div id="client-limit-reached" class="hidden-view mt-6 text-center text-red-400 bg-red-400/10 p-4 rounded-xl">
+                    <p>Este negócio atingiu o limite de agendamentos online para este mês. Entre em contato diretamente.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUCCESS VIEW -->
+        <div id="view-success" class="hidden-view min-h-[80vh] flex flex-col items-center justify-center text-center">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <div class="sloth-container w-32 h-32 relative mb-6">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
+                    <path d="M30,50 Q25,20 40,20" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
+                    <path d="M70,50 Q75,20 60,20" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
+                    <ellipse cx="50" cy="55" rx="20" ry="25" fill="#cd853f"/>
+                    <ellipse cx="50" cy="50" rx="14" ry="10" fill="#f5deb3"/>
+                    <path d="M40,50 Q43,48 46,50" stroke="#000" stroke-width="2" fill="none"/>
+                    <path d="M54,50 Q57,48 60,50" stroke="#000" stroke-width="2" fill="none"/>
+                    <path d="M45,55 Q50,60 55,55" stroke="#000" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-2">Agendamento Confirmado!</h2>
+            <p class="text-gray-400 mb-6 max-w-xs">O profissional será notificado via WhatsApp pelo seu celular.</p>
+            <button onclick="location.reload()" class="bg-darkCard border border-brandBlue text-brandBlue px-6 py-2 rounded-full hover:bg-brandBlue hover:text-white transition">Fazer outro agendamento</button>
+        </div>
+    </div>
+
+    <!-- PLANS MODAL -->
+    <div id="plans-modal" class="hidden-view fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-darkCard w-full max-w-4xl mx-auto rounded-2xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <button id="btn-close-plans" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Planos HoraFácil</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Grátis -->
+                <div class="bg-darkBg border border-gray-700 p-6 rounded-xl flex flex-col items-center text-center">
+                    <h3 class="text-xl font-bold text-gray-200">Grátis</h3>
+                    <p class="text-3xl font-black mt-2 mb-4">R$ 0<span class="text-base font-normal text-gray-400">/mês</span></p>
+                    <ul class="text-sm text-gray-400 space-y-3 mb-6 flex-1 w-full text-left mx-auto">
+                        <li>✓ 5 agendamentos/mês</li>
+                        <li>✓ Painel de controle</li>
+                        <li>✓ Link compartilhável</li>
+                    </ul>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg opacity-50 cursor-not-allowed">Plano Atual</button>
+                </div>
+                <!-- Pro -->
+                <div class="bg-gradient-to-b from-[#1e293b] to-[#0f172a] border-2 border-brandBlue p-6 rounded-xl flex flex-col items-center text-center relative transform md:-translate-y-2">
+                    <div class="absolute -top-3 bg-brandBlue text-xs font-bold px-4 py-1 rounded-full text-white uppercase tracking-wider">Popular</div>
+                    <h3 class="text-xl font-bold text-white mt-4">Pro</h3>
+                    <p class="text-3xl font-black mt-2 mb-4 text-brandBlue">R$ 19,90<span class="text-base font-normal text-gray-400">/mês</span></p>
+                    <ul class="text-sm text-gray-200 space-y-3 mb-6 flex-1 w-full text-left mx-auto">
+                        <li>✓ 50 agendamentos/mês</li>
+                        <li>✓ Notificações automáticas</li>
+                        <li>✓ Página personalizada</li>
+                    </ul>
+                    <button class="w-full py-2 bg-brandBlue hover:bg-blue-600 text-white font-bold rounded-lg transition" onclick="alert('Funcionalidade de pagamento em breve!')">Assinar Pro</button>
+                </div>
+                <!-- Premium -->
+                <div class="bg-darkBg border border-gray-700 p-6 rounded-xl flex flex-col items-center text-center">
+                    <h3 class="text-xl font-bold text-yellow-400">Premium</h3>
+                    <p class="text-3xl font-black mt-2 mb-4 text-yellow-400">R$ 29,90<span class="text-base font-normal text-gray-400">/mês</span></p>
+                    <ul class="text-sm text-gray-400 space-y-3 mb-6 flex-1 w-full text-left mx-auto">
+                        <li>✓ Ilimitado</li>
+                        <li>✓ Lembretes Automáticos</li>
+                        <li>✓ Relatório Mensal</li>
+                    </ul>
+                    <button class="w-full py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-bold rounded-lg transition" onclick="alert('Funcionalidade de pagamento em breve!')">Assinar Premium</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, addDoc, serverTimestamp, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8zxbSaMWiC7YfiSafKxuO-biB27nQ4g8",
+            authDomain: "horafacil-71dbb.firebaseapp.com",
+            projectId: "horafacil-71dbb",
+            storageBucket: "horafacil-71dbb.firebasestorage.app",
+            messagingSenderId: "768284219651",
+            appId: "1:768284219651:web:4bd553adcef0ec78993136"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let state = {
+            user: null, negocio: null, clientNegocio: null,
+            selectedService: null, selectedDate: null, selectedTime: null
+        };
+
+        const Views = {
+            show: (id) => {
+                ['view-loading', 'view-login', 'view-owner-config', 'view-owner-dashboard', 'view-client', 'view-success'].forEach(v => {
+                    document.getElementById(v).classList.add('hidden-view');
+                });
+                document.getElementById(id).classList.remove('hidden-view');
+            }
+        };
+
+        async function init() {
+            createBubbles();
+            const urlParams = new URLSearchParams(window.location.search);
+            const negocioId = urlParams.get('negocio');
+            
+            if (negocioId) {
+                await setupClientView(negocioId);
+            } else {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        state.user = user;
+                        const docRef = doc(db, 'negocios', user.uid);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            state.negocio = docSnap.data();
+                            setupOwnerDashboard();
+                        } else {
+                            Views.show('view-owner-config');
+                        }
+                    } else {
+                        Views.show('view-login');
+                    }
+                });
+            }
+        }
+
+        // Bubbles Animation
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            for(let i=0; i<30; i++) {
+                const b = document.createElement('div');
+                b.className = 'bubble';
+                const size = Math.random() * 40 + 10;
+                b.style.width = size + 'px'; b.style.height = size + 'px';
+                b.style.left = Math.random() * 100 + 'vw'; b.style.top = Math.random() * 100 + 'vh';
+                b.style.animationDelay = (Math.random() * 5) + 's'; b.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                container.appendChild(b);
+            }
+            document.addEventListener('mousemove', (e) => {
+                document.querySelectorAll('.bubble').forEach(b => {
+                    const rect = b.getBoundingClientRect(); const bx = rect.left + rect.width/2; const by = rect.top + rect.height/2;
+                    const dist = Math.hypot(e.clientX - bx, e.clientY - by);
+                    if(dist < 100) {
+                        const angle = Math.atan2(by - e.clientY, bx - e.clientX);
+                        b.style.transform = `translate(${Math.cos(angle)*30}px, ${Math.sin(angle)*30}px) scale(1.2)`;
+                    } else { b.style.transform = ''; }
+                });
+            });
+        }
+
+        // Auth Logic
+        document.getElementById('btn-google-login').onclick = () => signInWithPopup(auth, provider);
+        document.getElementById('btn-logout').onclick = () => signOut(auth).then(()=> location.reload());
+
+        // Owner Config Logic
+        document.getElementById('btn-add-servico').onclick = () => {
+            const div = document.createElement('div'); div.className = 'flex gap-2 servico-item';
+            div.innerHTML = `<input type="text" placeholder="Ex: Cabelo" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="0.00" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><button type="button" class="text-red-500" onclick="this.parentElement.remove()">✕</button>`;
+            document.getElementById('servicos-list').appendChild(div);
+        };
+
+        document.getElementById('form-config').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]'); btn.textContent = 'Salvando...'; btn.disabled = true;
+            
+            const servicos = [];
+            document.querySelectorAll('.servico-item').forEach(el => {
+                servicos.push({ nome: el.children[0].value, preco: parseFloat(el.children[1].value) });
+            });
+            const dias = Array.from(document.querySelectorAll('#cfg-dias input:checked')).map(cb => parseInt(cb.value));
+            
+            const data = {
+                uid: state.user.uid,
+                nome: document.getElementById('cfg-nome').value,
+                tipo: document.getElementById('cfg-tipo').value,
+                whatsapp: document.getElementById('cfg-whatsapp').value,
+                email: document.getElementById('cfg-email').value,
+                servicos,
+                horarios: { dias, inicio: document.getElementById('cfg-hora-inicio').value, fim: document.getElementById('cfg-hora-fim').value },
+                plano: 'Grátis',
+                contagemMes: 0,
+                criadoEm: serverTimestamp()
+            };
+            await setDoc(doc(db, 'negocios', state.user.uid), data);
+            state.negocio = data;
+            setupOwnerDashboard();
+        };
+
+        // Owner Dashboard Logic
+        async function setupOwnerDashboard() {
+            Views.show('view-owner-dashboard');
+            document.getElementById('dash-photo').src = state.user.photoURL || '';
+            document.getElementById('dash-name').textContent = state.negocio.nome;
+            document.getElementById('dash-type').textContent = state.negocio.tipo;
+            
+            const baseUrl = window.location.href.split('?')[0];
+            const dashLink = `${baseUrl}?negocio=${state.user.uid}`;
+            document.getElementById('dash-link').textContent = dashLink;
+            document.getElementById('dash-link').onclick = document.getElementById('btn-copy-link').onclick = () => {
+                navigator.clipboard.writeText(dashLink); alert('Link copiado!');
+            };
+
+            const count = state.negocio.contagemMes || 0;
+            const limit = state.negocio.plano === 'Grátis' ? 5 : (state.negocio.plano === 'Pro' ? 50 : '∞');
+            document.getElementById('dash-count').textContent = count;
+            document.getElementById('dash-limit').textContent = limit;
+            if(limit !== '∞') document.getElementById('dash-progress').style.width = Math.min(100, (count/limit)*100) + '%';
+
+            // Load Agendamentos
+            const q = query(collection(db, 'agendamentos'), where('negocioId', '==', state.user.uid));
+            const snap = await getDocs(q);
+            const hojeEl = document.getElementById('tab-hoje'); const semanaEl = document.getElementById('tab-semana');
+            hojeEl.innerHTML = ''; semanaEl.innerHTML = '';
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            snap.docs.forEach(doc => {
+                const ag = doc.data();
+                const card = `<div class="bg-darkBg p-3 rounded-lg border border-gray-700 flex justify-between items-center"><div class="flex-1">
+                    <p class="font-bold text-sm">${ag.clienteNome}</p><p class="text-xs text-gray-400 capitalize">${ag.servico.nome} - R$ ${ag.servico.preco}</p>
+                    <p class="text-xs text-brandBlue">${ag.data.split('-').reverse().join('/')} às ${ag.horario}</p>
+                </div><a href="https://wa.me/${ag.clienteWhatsapp}" target="_blank" class="bg-green-600/20 text-green-500 p-2 rounded-full hover:bg-green-600/40"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a></div>`;
+                if(ag.data === todayStr) hojeEl.innerHTML += card;
+                else semanaEl.innerHTML += card;
+            });
+            if(!hojeEl.innerHTML) hojeEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum agendamento hoje.</p>';
+            if(!semanaEl.innerHTML) semanaEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum outro agendamento na semana.</p>';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('text-brandBlue', 'border-brandBlue'); b.classList.add('text-gray-400', 'border-transparent'); });
+                    btn.classList.add('text-brandBlue', 'border-brandBlue'); btn.classList.remove('text-gray-400', 'border-transparent');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden-view'));
+                    document.getElementById(btn.dataset.target).classList.remove('hidden-view');
+                };
+            });
+        }
+
+        // Plans Modal
+        document.getElementById('btn-open-plans').onclick = () => document.getElementById('plans-modal').classList.remove('hidden-view');
+        document.getElementById('btn-close-plans').onclick = () => document.getElementById('plans-modal').classList.add('hidden-view');
+
+        // Client Flow Logic
+        async function setupClientView(negocioId) {
+            Views.show('view-loading');
+            const snap = await getDoc(doc(db, 'negocios', negocioId));
+            if (!snap.exists()) { document.body.innerHTML = '<h1 class="text-center mt-20 text-xl font-bold">Negócio não encontrado.</h1>'; return; }
+            state.clientNegocio = snap.data();
+            
+            // Limit check
+            const limit = state.clientNegocio.plano === 'Grátis' ? 5 : (state.clientNegocio.plano === 'Pro' ? 50 : 99999);
+            const count = state.clientNegocio.contagemMes || 0;
+            if (count >= limit) {
+                document.getElementById('client-limit-reached').classList.remove('hidden-view');
+                document.getElementById('client-step-1').classList.add('hidden-view');
+            } else {
+                renderClientServices();
+            }
+
+            document.getElementById('client-b-name').textContent = state.clientNegocio.nome;
+            document.getElementById('client-b-type').textContent = state.clientNegocio.tipo;
+            Views.show('view-client');
+        }
+
+        function renderClientServices() {
+            const cont = document.getElementById('client-services'); cont.innerHTML = '';
+            state.clientNegocio.servicos.forEach((srv, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 bg-darkBg border border-gray-700 rounded-xl hover:border-brandBlue transition flex justify-between items-center';
+                btn.innerHTML = `<span class="font-bold">${srv.nome}</span><span class="text-brandBlue">R$ ${srv.preco.toFixed(2)}</span>`;
+                btn.onclick = () => {
+                    document.querySelectorAll('#client-services button').forEach(b => b.classList.remove('border-brandBlue', 'ring-2', 'ring-brandBlue'));
+                    btn.classList.add('border-brandBlue', 'ring-2', 'ring-brandBlue');
+                    state.selectedService = srv;
+                    document.getElementById('client-summary-price').textContent = `R$ ${srv.preco.toFixed(2)}`;
+                    document.getElementById('client-step-2').classList.remove('hidden-view');
+                    renderClientDates();
+                };
+                cont.appendChild(btn);
+            });
+        }
+
+        function renderClientDates() {
+            const cont = document.getElementById('client-dates'); cont.innerHTML = '';
+            const today = new Date();
+            const diasAbertos = state.clientNegocio.horarios.dias;
+            const weekDays = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+            let count = 0; let d = new Date(today);
+            while(count < 14) {
+                if (diasAbertos.includes(d.getDay())) {
+                    const dateStr = d.toISOString().split('T')[0];
+                    const btn = document.createElement('button');
+                    btn.className = 'min-w-[70px] flex-shrink-0 bg-darkBg border border-gray-700 rounded-xl p-3 flex flex-col items-center hover:bg-gray-800 transition';
+                    btn.innerHTML = `<span class="text-xs text-gray-400">${weekDays[d.getDay()]}</span><span class="text-lg font-bold">${d.getDate()}</span>`;
+                    btn.onclick = () => {
+                        document.querySelectorAll('#client-dates button').forEach(b => b.classList.remove('border-brandBlue', 'ring-2', 'ring-brandBlue'));
+                        btn.classList.add('border-brandBlue', 'ring-2', 'ring-brandBlue');
+                        state.selectedDate = dateStr;
+                        document.getElementById('client-step-3').classList.remove('hidden-view');
+                        renderClientTimes(dateStr);
+                    };
+                    cont.appendChild(btn);
+                    count++;
+                }
+                d.setDate(d.getDate() + 1);
+            }
+        }
+
+        async function renderClientTimes(dateStr) {
+            const cont = document.getElementById('client-times'); cont.innerHTML = '';
+            document.getElementById('client-no-times').classList.add('hidden-view');
+            document.getElementById('client-step-4').classList.add('hidden-view');
+            
+            // Get already booked
+            const q = query(collection(db, 'agendamentos'), where('negocioId', '==', state.clientNegocio.uid));
+            const snap = await getDocs(q);
+            const booked = new Set();
+            snap.docs.forEach(doc => { if(doc.data().data === dateStr) booked.add(doc.data().horario); });
+
+            // Generate slots
+            const slots = [];
+            let [h, m] = state.clientNegocio.horarios.inicio.split(':').map(Number);
+            const [endH, endM] = state.clientNegocio.horarios.fim.split(':').map(Number);
+            const endMins = endH * 60 + endM;
+            
+            while ((h * 60 + m) < endMins) {
+                const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                if (!booked.has(timeStr)) slots.push(timeStr);
+                // Add 1 hour service duration
+                h++;
+            }
+
+            if (slots.length === 0) { document.getElementById('client-no-times').classList.remove('hidden-view'); return; }
+
+            slots.forEach(time => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-darkBg border border-gray-700 rounded-lg py-2 text-center hover:border-brandBlue hover:text-brandBlue transition font-medium';
+                btn.textContent = time;
+                btn.onclick = () => {
+                    document.querySelectorAll('#client-times button').forEach(b => b.classList.remove('bg-brandBlue', 'text-white', 'border-brandBlue'));
+                    btn.classList.add('bg-brandBlue', 'text-white', 'border-brandBlue');
+                    state.selectedTime = time;
+                    document.getElementById('client-step-4').classList.remove('hidden-view');
+                    document.getElementById('client-step-4').scrollIntoView({ behavior: 'smooth' });
+                };
+                cont.appendChild(btn);
+            });
+        }
+
+        document.getElementById('form-client-booking').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-confirm-booking'); btn.disabled = true; btn.innerHTML = 'Processando...';
+            const nome = document.getElementById('client-nome').value;
+            const zap = document.getElementById('client-whatsapp').value.replace(/\D/g, ''); // just numbers
+
+            const agendamento = {
+                negocioId: state.clientNegocio.uid,
+                clienteNome: nome,
+                clienteWhatsapp: zap,
+                servico: state.selectedService,
+                data: state.selectedDate,
+                horario: state.selectedTime,
+                criadoEm: serverTimestamp()
+            };
+
+            try {
+                // Save to Firebase
+                await addDoc(collection(db, 'agendamentos'), agendamento);
+                await updateDoc(doc(db, 'negocios', state.clientNegocio.uid), { contagemMes: increment(1) });
+                
+                // Show Success & Open WhatsApp
+                Views.show('view-success');
+                const [y, m, d] = state.selectedDate.split('-');
+                const text = `Novo agendamento HoraFácil!%0A*Nome:* ${nome}%0A*Serviço:* ${state.selectedService.nome}%0A*Data:* ${d}/${m}/${y}%0A*Horário:* ${state.selectedTime}%0A*WhatsApp Cliente:* ${zap}`;
+                const waLink = `https://wa.me/${state.clientNegocio.whatsapp.replace(/\D/g,'')}?text=${text}`;
+                window.open(waLink, '_blank');
+            } catch (err) {
+                console.error(err); alert('Erro ao agendar. Tente novamente.');
+                btn.disabled = false; btn.innerHTML = 'Confirmar Agendamento';
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
