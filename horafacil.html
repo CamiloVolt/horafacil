@@ -873,18 +873,30 @@
             
             let safeKey = pixKey.trim(); 
             let justNums = safeKey.replace(/\D/g, '');
+            
+            function isCPF(cpf) {
+                if(cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+                let soma = 0, resto;
+                for(let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i-1, i)) * (11 - i);
+                resto = (soma * 10) % 11; if((resto == 10) || (resto == 11)) resto = 0;
+                if(resto != parseInt(cpf.substring(9, 10))) return false;
+                soma = 0;
+                for(let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i-1, i)) * (12 - i);
+                resto = (soma * 10) % 11; if((resto == 10) || (resto == 11)) resto = 0;
+                if(resto != parseInt(cpf.substring(10, 11))) return false;
+                return true;
+            }
+
             if (safeKey.includes('@')) {
                 safeKey = safeKey.toLowerCase();
             } else if (justNums.length === 11) { 
-                // Se tem 11 e não tem @, pode ser CPF ou celular sem 55. A API do PIX geralmente aceita sem o 55 mas vamos padronizar chaves numéricas longas limpas.
-                // Mas não podemos forçar +55 em CPF. CPF é só numeros
-                safeKey = justNums; 
-            } else if (justNums.length === 13 && justNums.startsWith('55')) { 
-                // Celular 100% com 55 => exige o +
-                safeKey = '+' + justNums; 
+                if (isCPF(justNums)) safeKey = justNums; // É um CPF válido
+                else safeKey = '+55' + justNums; // Se não é CPF válido, assumimos que é Telefone (DDD + 9 dígitos)
+            } else if (justNums.length === 12 || justNums.length === 13) { 
+                if (justNums.startsWith('55')) safeKey = '+' + justNums; 
+                else safeKey = justNums; // Pode ser chave aleatória só de numeros
             } else if (justNums.length === 14) {
-                // CNPJ
-                safeKey = justNums;
+                safeKey = justNums; // CNPJ
             } else {
                 safeKey = safeKey.replace(/\s+/g, '');
             }
