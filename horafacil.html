@@ -211,7 +211,13 @@
                 <!-- Step 5 (PIX) -->
                 <div id="client-step-5" class="hidden-view mt-6 border-t border-brandBlue pt-6 transition-all duration-300">
                     <h3 class="font-semibold text-lg flex items-center justify-center gap-2 mb-4 text-brandBlue"><svg class="w-6 h-6 text-[#32bcad]" viewBox="0 0 512 512" fill="currentColor"><path d="M124.3 227.6L227.6 124.3c15.6-15.6 40.9-15.6 56.6 0l103.4 103.4c15.6 15.6 15.6 40.9 0 56.6L284.2 387.7c-15.6-15.6-40.9 15.6-56.6 0L124.3 284.2c-15.6-15.6-15.6-40.9 0-56.6zm0 0"/></svg> Pagamento via PIX</h3>
-                    <div class="bg-darkBg border border-brandBlue/50 rounded-xl p-5 text-center shadow-lg">
+                    
+                    <div id="payment-options" class="flex flex-col gap-3 mb-4">
+                        <button type="button" id="btn-pay-pix" class="w-full bg-darkBg border border-brandBlue hover:bg-brandBlue/20 text-white font-bold py-3 text-lg rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg">💳 Pagar agora via PIX</button>
+                        <button type="button" id="btn-pay-local" class="w-full bg-darkBg border border-gray-600 hover:bg-gray-700 text-white font-bold py-3 text-lg rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg">🏪 Pagar no estabelecimento</button>
+                    </div>
+
+                    <div id="pix-payment-area" class="hidden-view bg-darkBg border border-brandBlue/50 rounded-xl p-5 text-center shadow-lg">
                         <p class="text-gray-300 text-base mb-3">Escaneie o QR Code abaixo para pagar <br><span class="text-white font-black text-2xl" id="pix-total-val">R$ 0,00</span></p>
                         <div id="pix-qrcode" class="flex justify-center bg-white p-3 rounded-xl w-52 h-52 mx-auto mb-5 shadow-inner"></div>
                         <p class="text-sm text-gray-400 mb-2">Ou utilize a opção PIX Copia e Cola:</p>
@@ -784,24 +790,38 @@
             const pixData = state.clientNegocio.pix;
             if (pixData && pixData.active && pixData.key && pixData.name && pixData.city) {
                 document.getElementById('client-step-4').classList.add('opacity-50', 'pointer-events-none');
+                document.getElementById('payment-options').classList.remove('hidden-view');
+                document.getElementById('pix-payment-area').classList.add('hidden-view');
                 document.getElementById('client-step-5').classList.remove('hidden-view');
-                
-                const totalVal = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0);
-                document.getElementById('pix-total-val').textContent = `R$ ${totalVal.toFixed(2)}`;
-                
-                const emvStr = generatePixPayload(pixData.key, pixData.name, pixData.city, totalVal);
-                document.getElementById('pix-emv-code').value = emvStr;
-                
-                document.getElementById('pix-qrcode').innerHTML = '';
-                new QRCode(document.getElementById('pix-qrcode'), {
-                    text: emvStr, width: 208, height: 208, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
-                });
-                
                 document.getElementById('client-step-5').scrollIntoView({ behavior: 'smooth' });
                 btn.disabled = false; btn.innerHTML = 'Continuar'; // reset this button in case they go back
             } else {
-                finalizeBooking(false); // No PIX enabled
+                finalizeBooking('none'); // No PIX enabled
             }
+        };
+
+        document.getElementById('btn-pay-pix').onclick = () => {
+            document.getElementById('payment-options').classList.add('hidden-view');
+            document.getElementById('pix-payment-area').classList.remove('hidden-view');
+            
+            const pixData = state.clientNegocio.pix;
+            const totalVal = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0);
+            document.getElementById('pix-total-val').textContent = `R$ ${totalVal.toFixed(2)}`;
+            
+            const emvStr = generatePixPayload(pixData.key, pixData.name, pixData.city, totalVal);
+            document.getElementById('pix-emv-code').value = emvStr;
+            
+            document.getElementById('pix-qrcode').innerHTML = '';
+            new QRCode(document.getElementById('pix-qrcode'), {
+                text: emvStr, width: 208, height: 208, colorDark: "#0f172a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            document.getElementById('pix-payment-area').scrollIntoView({ behavior: 'smooth' });
+        };
+        
+        document.getElementById('btn-pay-local').onclick = () => {
+             const btn = document.getElementById('btn-pay-local'); btn.disabled = true; btn.innerHTML = 'Processando...';
+             finalizeBooking('local');
         };
 
         document.getElementById('btn-copy-pix').onclick = () => {
@@ -814,12 +834,12 @@
 
         document.getElementById('btn-pix-done').onclick = () => {
              const btn = document.getElementById('btn-pix-done'); btn.disabled = true; btn.innerHTML = 'Processando...';
-             finalizeBooking(true);
+             finalizeBooking('pix');
         };
 
-        async function finalizeBooking(paidWithPix) {
+        async function finalizeBooking(paymentType) {
             const nome = document.getElementById('client-nome').value;
-            const zap = document.getElementById('client-whatsapp').value.replace(/\D/g, ''); // just numbers
+            const zap = document.getElementById('client-whatsapp').value.replace(/\D/g, '');
 
             const agendamento = {
                 negocioId: state.clientNegocio.uid,
@@ -842,17 +862,22 @@
                 
                 let waText = `Novo agendamento HoraFácil!\n*Nome:* ${nome}\n*Serviços:* ${namesText}\n*Total:* R$ ${totalVal}\n*Data:* ${d}/${m}/${y}\n*Horário:* ${state.selectedTime}\n*WhatsApp Cliente:* ${zap}`;
                 
-                if (paidWithPix) {
-                    waText += `\n\n💰 Pagamento PIX enviado pelo cliente - aguardando sua confirmação (R$ ${totalVal})`;
+                if (paymentType === 'pix') {
+                    waText += `\n\n💰 Pagamento PIX enviado - aguardando confirmação`;
+                } else if (paymentType === 'local') {
+                    waText += `\n\n⚠️ Pagamento: será pago no estabelecimento`;
                 }
                 
                 const waLink = `https://wa.me/${state.clientNegocio.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(waText)}`;
                 window.open(waLink, '_blank');
             } catch (err) {
                 console.error(err); alert('Erro ao agendar. Tente novamente.');
-                if (paidWithPix) {
+                if (paymentType === 'pix') {
                     const btnPix = document.getElementById('btn-pix-done');
                     btnPix.disabled = false; btnPix.innerHTML = 'Já paguei - Confirmar Agendamento';
+                } else if (paymentType === 'local') {
+                    const btnL = document.getElementById('btn-pay-local');
+                    btnL.disabled = false; btnL.innerHTML = '🏪 Pagar no estabelecimento';
                 } else {
                     const btnC = document.getElementById('btn-confirm-booking');
                     btnC.disabled = false; btnC.innerHTML = 'Continuar';
