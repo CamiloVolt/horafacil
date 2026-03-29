@@ -353,6 +353,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, addDoc, serverTimestamp, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD8zxbSaMWiC7YfiSafKxuO-biB27nQ4g8",
@@ -440,11 +441,11 @@
                             const pId = urlParams.get('preapproval_id');
                             if (pId) {
                                 try {
-                                    const token = 'APP_USR-1134661133251593-032819-c88654e570bedeb5fc4242775187729e-415898030';
-                                    const res = await fetch(`https://api.mercadopago.com/preapproval/${pId}`, {
-                                        headers: { "Authorization": `Bearer ${token}` }
-                                    });
-                                    const data = await res.json();
+                                    const functionsInstance = getFunctions(app);
+                                    const verificarAssinatura = httpsCallable(functionsInstance, 'verificarAssinaturaMP');
+                                    const result = await verificarAssinatura({ preapproval_id: pId });
+                                    const data = result.data;
+                                    
                                     if (data.status === 'authorized') {
                                         const newPlan = data.reason.includes('Premium') ? 'Premium' : 'Pro';
                                         await updateDoc(doc(db, 'negocios', user.uid), { plano: newPlan });
@@ -454,7 +455,7 @@
                                     }
                                 } catch(e) {
                                     console.error('Erro ao verificar assinatura:', e);
-                                    alert('Erro ao verificar status da assinatura.');
+                                    alert('Erro ao verificar status da assinatura no servidor.');
                                 }
                                 urlParams.delete('preapproval_id');
                                 const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
@@ -787,40 +788,22 @@
             btnEl.disabled = true;
             btnEl.textContent = 'Gerando link...';
 
-            const token = 'APP_USR-1134661133251593-032819-c88654e570bedeb5fc4242775187729e-415898030';
-            const body = {
-                reason: `HoraFácil ${plano}`,
-                auto_recurring: {
-                    frequency: 1,
-                    frequency_type: "months",
-                    transaction_amount: preco,
-                    currency_id: "BRL"
-                },
-                back_url: "https://camilovolt.github.io/horafacil",
-                payer_email: user.email
-            };
-
             try {
-                const res = await fetch("https://api.mercadopago.com/preapproval", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify(body)
-                });
-                const data = await res.json();
-                if (data.init_point) {
-                    window.location.href = data.init_point;
+                const functionsInstance = getFunctions(app);
+                const criarAssinatura = httpsCallable(functionsInstance, 'criarAssinaturaMP');
+                const result = await criarAssinatura({ plano, preco });
+                
+                if (result.data && result.data.init_point) {
+                    window.location.href = result.data.init_point;
                 } else {
-                    console.error('Erro na resposta do MP:', data);
+                    console.error('Sem init_point na resposta:', result.data);
                     alert("Erro ao gerar link de pagamento.");
                     btnEl.disabled = false;
                     btnEl.textContent = originalText;
                 }
             } catch(e) {
-                console.error('Erro de rede:', e);
-                alert("Erro ao conectar com Mercado Pago.");
+                console.error('Erro Calling Function:', e);
+                alert("Erro ao solicitar assinatura no servidor.");
                 btnEl.disabled = false;
                 btnEl.textContent = originalText;
             }
