@@ -3,7 +3,7 @@ const logger = require("firebase-functions/logger");
 const { setGlobalOptions } = require("firebase-functions/v2");
 
 // É recomendado definir a região mais próxima e ajustar instâncias conforme necessário
-setGlobalOptions({ maxInstances: 10, region: "us-central1" });
+setGlobalOptions({ maxInstances: 10, region: "us-central1", invoker: "public" });
 
 // O Token removido do frontend agora fica seguro no backend!
 const MP_TOKEN = 'APP_USR-1134661133251593-032819-c88654e570bedeb5fc4242775187729e-415898030';
