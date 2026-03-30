@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoraFácil</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
@@ -102,8 +103,22 @@
                         <div><label class="block text-xs text-gray-400 mb-1">Cidade da Conta</label><input type="text" id="cfg-pix-city" placeholder="Sua cidade" class="w-full bg-darkCard border border-gray-700 rounded p-2 text-sm text-white focus:border-brandBlue focus:outline-none"></div>
                     </div>
                     <hr class="border-gray-700 my-4">
-                    <h3 class="font-semibold text-lg">Serviços</h3>
-                    <div id="servicos-list" class="space-y-2"><div class="flex gap-2 servico-item"><input type="text" placeholder="Corte degradê" value="Corte Padrão" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="45.00" value="40" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"></div></div>
+                    <h3 class="font-semibold text-lg flex items-center gap-2">Serviços <span class="text-[10px] text-gray-500 font-normal">(Dica: Prefira fotos horizontais/centralizadas)</span></h3>
+                    <div id="servicos-list" class="space-y-2">
+                        <div class="flex gap-2 items-center servico-item bg-darkBg/30 p-2 rounded-lg border border-gray-700/50">
+                            <div class="relative w-24 h-12 flex-shrink-0 bg-darkBg border border-gray-700 rounded-lg overflow-hidden group">
+                                <img src="" class="w-full h-full object-cover hidden">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg>
+                                </div>
+                                <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer srv-file" onchange="window.previewSrvImage(this)">
+                                <input type="hidden" class="srv-img-url" value="">
+                            </div>
+                            <input type="text" value="Corte Padrão" placeholder="Nome" required class="flex-1 bg-transparent border-none text-sm focus:ring-0 text-white p-1">
+                            <input type="number" value="40" placeholder="0.00" step="0.01" required class="w-16 bg-transparent border-none text-sm focus:ring-0 text-white text-right p-1">
+                            <button type="button" class="text-red-500 p-1 hover:bg-red-500/10 rounded" onclick="this.parentElement.remove()">✕</button>
+                        </div>
+                    </div>
                     <button type="button" id="btn-add-servico" class="text-brandBlue text-sm">+ Adicionar serviço</button>
                     <hr class="border-gray-700 my-4">
                     <h3 class="font-semibold text-lg">Horários de Funcionamento</h3>
@@ -175,7 +190,16 @@
                         <p class="text-xs text-brandBlue" id="dash-type">--</p>
                     </div>
                 </div>
-                <button id="btn-logout" class="text-gray-400 hover:text-white text-sm">Sair</button>
+                <div class="flex items-center gap-4">
+                    <button id="btn-day-summary" class="text-gray-400 hover:text-brandBlue text-sm flex items-center gap-1 transition-colors" title="Resumo do Dia">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    </button>
+                    <button id="btn-voice-toggle" class="text-gray-400 hover:text-brandBlue text-sm flex items-center gap-1 transition-colors" title="Notificações de Voz">
+                        <svg id="icon-voice-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z m13.657-11.657l-10 10m-2-2l-2 2"/></svg>
+                        <svg id="icon-voice-on" class="w-5 h-5 hidden-view text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    </button>
+                    <button id="btn-logout" class="text-gray-400 hover:text-white text-sm">Sair</button>
+                </div>
             </div>
             
             <div class="bg-gradient-to-r from-[#1e293b] to-[#0f172a] p-5 rounded-xl shadow-lg border border-gray-700 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -308,24 +332,24 @@
                 <div class="bg-gradient-to-b from-[#1e293b] to-[#0f172a] border-2 border-brandBlue p-6 rounded-xl flex flex-col items-center text-center relative transform md:-translate-y-2">
                     <div class="absolute -top-3 bg-brandBlue text-xs font-bold px-4 py-1 rounded-full text-white uppercase tracking-wider">Popular</div>
                     <h3 class="text-xl font-bold text-white mt-4">Pro</h3>
-                    <p class="text-3xl font-black mt-2 mb-4 text-brandBlue">R$ 19,90<span class="text-base font-normal text-gray-400">/mês</span></p>
+                    <p class="text-3xl font-black mt-2 mb-4 text-brandBlue">R$ 49,90<span class="text-base font-normal text-gray-400">/mês</span></p>
                     <ul class="text-sm text-gray-200 space-y-3 mb-6 flex-1 w-full text-left mx-auto">
                         <li>✓ 50 agendamentos/mês</li>
                         <li>✓ Notificações automáticas</li>
                         <li>✓ Página personalizada</li>
                     </ul>
-                    <button class="w-full py-2 bg-brandBlue hover:bg-blue-600 text-white font-bold rounded-lg transition" onclick="window.assinarPlano('Pro', 19.90, this)">Assinar Pro</button>
+                    <button class="w-full py-2 bg-brandBlue hover:bg-blue-600 text-white font-bold rounded-lg transition" onclick="window.assinarPlano('Pro', 49.90, this)">Assinar Pro</button>
                 </div>
                 <!-- Premium -->
                 <div class="bg-darkBg border border-gray-700 p-6 rounded-xl flex flex-col items-center text-center">
                     <h3 class="text-xl font-bold text-yellow-400">Premium</h3>
-                    <p class="text-3xl font-black mt-2 mb-4 text-yellow-400">R$ 29,90<span class="text-base font-normal text-gray-400">/mês</span></p>
+                    <p class="text-3xl font-black mt-2 mb-4 text-yellow-400">R$ 89,90<span class="text-base font-normal text-gray-400">/mês</span></p>
                     <ul class="text-sm text-gray-400 space-y-3 mb-6 flex-1 w-full text-left mx-auto">
                         <li>✓ Ilimitado</li>
                         <li>✓ Lembretes Automáticos</li>
                         <li>✓ Relatório Mensal</li>
                     </ul>
-                    <button class="w-full py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-bold rounded-lg transition" onclick="window.assinarPlano('Premium', 29.90, this)">Assinar Premium</button>
+                    <button class="w-full py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-bold rounded-lg transition" onclick="window.assinarPlano('Premium', 89.90, this)">Assinar Premium</button>
                 </div>
             </div>
         </div>
@@ -352,8 +376,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, addDoc, serverTimestamp, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, addDoc, serverTimestamp, updateDoc, increment, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD8zxbSaMWiC7YfiSafKxuO-biB27nQ4g8",
@@ -364,9 +389,40 @@
             appId: "1:768284219651:web:4bd553adcef0ec78993136"
         };
 
-        let app, auth, db, provider;
+        let app, auth, db, provider, storage;
         let initResolved = false;
 
+        // Voice Notifications State
+        window.voiceEnabled = false;
+        window.lastPaymentStatus = {}; // Stores {docId: status} to detect newly paid Pix
+        window.lastStatus = {};        // Stores {docId: status} to detect cancellations
+        window.agendasHoje = [];       // Cache for today's summary
+        
+        window.falar = (texto) => {
+            if (!window.voiceEnabled) return;
+            const vozUtterance = new SpeechSynthesisUtterance(texto);
+            vozUtterance.lang = 'pt-BR';
+            vozUtterance.rate = 1.0;
+            vozUtterance.volume = 1.0;
+
+            const selecionarEVoz = () => {
+                const vozes = speechSynthesis.getVoices();
+                const vozFeminina = vozes.find(v => 
+                    (v.lang === 'pt-BR' && v.name.toLowerCase().includes('female')) ||
+                    (v.lang === 'pt-BR' && v.name.includes('Maria')) ||
+                    (v.lang === 'pt-BR' && v.name.includes('Luciana'))
+                );
+                if (vozFeminina) vozUtterance.voice = vozFeminina;
+                speechSynthesis.speak(vozUtterance);
+            };
+
+            if (speechSynthesis.getVoices().length === 0) {
+                speechSynthesis.addEventListener('voiceschanged', selecionarEVoz, { once: true });
+            } else {
+                selecionarEVoz();
+            }
+        };
+        
         const Views = {
             show: (id) => {
                 ['view-loading', 'view-login', 'view-owner-config', 'view-owner-dashboard', 'view-client', 'view-success'].forEach(v => {
@@ -375,6 +431,115 @@
                 document.getElementById(id).classList.remove('hidden-view');
             }
         };
+
+        // Chatbot Logic
+        let chatHistory = [];
+        const btnOpenChat = document.getElementById('btn-open-chat');
+        const btnCloseChat = document.getElementById('btn-close-chat');
+        const chatWindow = document.getElementById('chat-window');
+        const chatMessages = document.getElementById('chat-messages');
+        const formChat = document.getElementById('form-chat');
+        const chatInput = document.getElementById('chat-input');
+        const chatTyping = document.getElementById('chat-typing');
+
+        if (btnOpenChat) {
+            btnOpenChat.onclick = () => {
+                chatWindow.classList.remove('hidden-view');
+                btnOpenChat.classList.add('hidden-view');
+                const bizData = state.clientNegocio || state.negocio;
+                if (bizData && bizData.nome) {
+                    document.getElementById('chat-bot-name').textContent = bizData.nome;
+                }
+            };
+        }
+
+        if (btnCloseChat) {
+            btnCloseChat.onclick = () => {
+                chatWindow.classList.add('hidden-view');
+                btnOpenChat.classList.remove('hidden-view');
+            };
+        }
+
+        if (formChat) {
+            formChat.onsubmit = async (e) => {
+                e.preventDefault();
+                const msg = chatInput.value.trim();
+                if (!msg) return;
+
+                addChatMessage('user', msg);
+                chatInput.value = '';
+                chatTyping.classList.remove('hidden-view');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                try {
+                    const functionsInstance = getFunctions(app);
+                    const aiChat = httpsCallable(functionsInstance, 'aiChat');
+
+                    const bizData = state.clientNegocio || state.negocio;
+                    if (!bizData) {
+                        addChatMessage('model', "Ainda estou carregando as informações do negócio. Tente falar comigo em alguns segundos.");
+                        chatTyping.classList.add('hidden-view');
+                        return;
+                    }
+
+                    const negocioId = bizData.uid || (state.clientNegocio?.uid || state.negocio?.uid);
+
+                    const result = await aiChat({
+                        message: msg,
+                        history: chatHistory,
+                        negocioId,
+                        negocioData: {
+                            nome: bizData.nome,
+                            tipo: bizData.tipo,
+                            servicos: bizData.servicos,
+                            horarios: bizData.horarios,
+                            whatsapp: bizData.whatsapp
+                        }
+                    });
+
+                    const botReply = result.data.response;
+                    addChatMessage('model', botReply);
+
+                    // If booking was confirmed, show WhatsApp notification button
+                    if (result.data.agendamentoConfirmado && result.data.whatsappDono) {
+                        const waLink = `https://wa.me/${result.data.whatsappDono}?text=${encodeURIComponent(result.data.waText)}`;
+                        addChatAction('📲 Notificar dono no WhatsApp', waLink);
+                        window.open(waLink, '_blank'); // Abre automaticamente como no agendamento manual
+                    }
+
+                    chatHistory.push({ role: "user", parts: [{ text: msg }] });
+                    chatHistory.push({ role: "model", parts: [{ text: botReply }] });
+                    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+                } catch (err) {
+                    console.error("Erro no chat:", err);
+                    addChatMessage('model', "Desculpe, tive um problema técnico. Pode tentar novamente?");
+                } finally {
+                    chatTyping.classList.add('hidden-view');
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            };
+        }
+
+        function addChatMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            const bgClass = role === 'user' ? 'bg-brandBlue text-white rounded-tr-none' : 'bg-darkCard border border-gray-700 text-gray-200 rounded-tl-none';
+            div.innerHTML = `<div class="${bgClass} p-3 rounded-2xl max-w-[85%] text-sm shadow-sm">${text}</div>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addChatAction(label, href) {
+            const div = document.createElement('div');
+            div.className = 'flex justify-start';
+            div.innerHTML = `<a href="${href}" target="_blank" class="mt-1 flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-4 py-2 rounded-full shadow transition-colors active:scale-95">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 0C5.375 0 0 5.375 0 12c0 2.124.554 4.118 1.522 5.852L.051 23.998l6.304-1.654A11.942 11.942 0 0011.998 24C18.623 24 24 18.625 24 12S18.623 0 11.998 0zm.002 21.818a9.822 9.822 0 01-5.003-1.371l-.359-.214-3.724.977.994-3.629-.234-.373A9.844 9.844 0 012.18 12c0-5.418 4.4-9.818 9.82-9.818 5.42 0 9.82 4.4 9.82 9.818 0 5.42-4.4 9.818-9.82 9.818z"/></svg>
+                ${label}
+            </a>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
         const showErrorLogin = (msg = 'Erro ao conectar, tente novamente', err = null) => {
             if (initResolved && msg === 'Erro ao conectar, tente novamente') return;
@@ -405,7 +570,9 @@
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
+            storage = getStorage(app);
             provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
         } catch (error) {
             console.error("Firebase init error:", error);
             showErrorLogin('Erro ao inicializar serviços da conta.');
@@ -467,6 +634,7 @@
                             // Se já resolveu via timeout e o usuário loga normalmente ou existia:
                             if (docSnap.exists()) {
                                 state.negocio = docSnap.data();
+                                state.negocio.uid = user.uid; // Garante o UID para o chat e outras funções
                                 if (!initResolved || !document.getElementById('view-login').className.includes('hidden-view')) {
                                     setupOwnerDashboard();
                                 }
@@ -548,10 +716,34 @@
         document.getElementById('btn-logout').onclick = () => signOut(auth).then(()=> location.reload());
 
         // Owner Config Logic
-        document.getElementById('btn-add-servico').onclick = () => {
-            const div = document.createElement('div'); div.className = 'flex gap-2 servico-item';
-            div.innerHTML = `<input type="text" placeholder="Ex: Cabelo" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="0.00" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><button type="button" class="text-red-500" onclick="this.parentElement.remove()">✕</button>`;
+            document.getElementById('btn-add-servico').onclick = () => {
+                const div = document.createElement('div'); div.className = 'flex gap-2 items-center servico-item bg-darkBg/30 p-2 rounded-lg border border-gray-700/50';
+                div.innerHTML = `
+                    <div class="relative w-24 h-12 flex-shrink-0 bg-darkBg border border-gray-700 rounded-lg overflow-hidden group">
+                    <img src="" class="w-full h-full object-cover hidden">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer srv-file" onchange="window.previewSrvImage(this)">
+                    <input type="hidden" class="srv-img-url" value="">
+                </div>
+                <input type="text" placeholder="Nome" required class="flex-1 bg-transparent border-none text-sm focus:ring-0 text-white p-1">
+                <input type="number" placeholder="0.00" step="0.01" required class="w-16 bg-transparent border-none text-sm focus:ring-0 text-white text-right p-1">
+                <button type="button" class="text-red-500 p-1 hover:bg-red-500/10 rounded" onclick="this.parentElement.remove()">✕</button>`;
             document.getElementById('servicos-list').appendChild(div);
+        };
+
+        window.previewSrvImage = (input) => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = input.parentElement.querySelector('img');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
         };
 
         const closeConfig = () => { state.editing = false; Views.show('view-owner-dashboard'); };
@@ -564,53 +756,81 @@
             const originalText = btn.textContent;
             btn.textContent = 'Salvando...'; btn.disabled = true;
             
-            const servicos = [];
-            document.querySelectorAll('.servico-item').forEach(el => {
-                servicos.push({ nome: el.children[0].value, preco: parseFloat(el.children[1].value) });
-            });
-            const dias = Array.from(document.querySelectorAll('#cfg-dias input:checked')).map(cb => parseInt(cb.value));
-            
-            let logoBase64 = null;
-            const logoFile = document.getElementById('cfg-logo').files[0];
-            if (logoFile) {
-                logoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.readAsDataURL(logoFile);
-                });
+            try {
+                const servicos = [];
+                const servicoElems = document.querySelectorAll('.servico-item');
+                
+                for (const el of servicoElems) {
+                    const nomeInput = el.querySelector('input[type="text"]');
+                    const precoInput = el.querySelector('input[type="number"]');
+                    const nome = nomeInput ? nomeInput.value : 'Sem Nome';
+                    const preco = precoInput ? parseFloat(precoInput.value) : 0;
+                    const fileInput = el.querySelector('.srv-file');
+                    let imagem = el.querySelector('.srv-img-url').value;
+
+                    if (fileInput && fileInput.files[0]) {
+                        try {
+                            const file = fileInput.files[0];
+                            const storageRef = ref(storage, `servicos/${state.user.uid}/${nome}_${Date.now()}`);
+                            await uploadBytes(storageRef, file);
+                            imagem = await getDownloadURL(storageRef);
+                        } catch (err) {
+                            console.error('Erro upload servico:', err);
+                            alert(`Falha no upload da imagem para o serviço "${nome}". Verifique as permissões de Storage.`);
+                        }
+                    }
+                    // Salva em ambos para evitar erros de cache/versão
+                    servicos.push({ nome, preco, imageUrl: imagem, imagem: imagem });
+                }
+                const dias = Array.from(document.querySelectorAll('#cfg-dias input:checked')).map(cb => parseInt(cb.value));
+                
+                let logoBase64 = null;
+                const logoFile = document.getElementById('cfg-logo').files[0];
+                if (logoFile) {
+                    logoBase64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = (e) => reject(new Error("Erro ao ler arquivo de logo"));
+                        reader.readAsDataURL(logoFile);
+                    });
+                }
+
+                const pixData = {
+                    active: document.getElementById('cfg-pix-toggle').checked,
+                    key: document.getElementById('cfg-pix-key').value,
+                    name: document.getElementById('cfg-pix-name').value,
+                    city: document.getElementById('cfg-pix-city').value
+                };
+
+                const data = {
+                    uid: state.user.uid,
+                    nome: document.getElementById('cfg-nome').value,
+                    tipo: document.getElementById('cfg-tipo').value,
+                    whatsapp: document.getElementById('cfg-whatsapp').value,
+                    email: document.getElementById('cfg-email').value,
+                    servicos,
+                    pix: pixData,
+                    horarios: { dias, inicio: document.getElementById('cfg-hora-inicio').value, fim: document.getElementById('cfg-hora-fim').value }
+                };
+                if (logoBase64) data.logo = logoBase64;
+                
+                if (!state.editing) {
+                    data.plano = 'Grátis';
+                    data.contagemMes = 0;
+                    data.criadoEm = serverTimestamp();
+                }
+
+                await setDoc(doc(db, 'negocios', state.user.uid), data, { merge: true });
+                state.negocio = { ...state.negocio, ...data };
+                
+                state.editing = false;
+                setupOwnerDashboard();
+            } catch (err) {
+                console.error("Erro ao salvar configuração:", err);
+                alert("Erro ao salvar perfil: " + (err.message || err));
+            } finally {
+                btn.disabled = false; btn.textContent = originalText;
             }
-
-            const pixData = {
-                active: document.getElementById('cfg-pix-toggle').checked,
-                key: document.getElementById('cfg-pix-key').value,
-                name: document.getElementById('cfg-pix-name').value,
-                city: document.getElementById('cfg-pix-city').value
-            };
-
-            const data = {
-                uid: state.user.uid,
-                nome: document.getElementById('cfg-nome').value,
-                tipo: document.getElementById('cfg-tipo').value,
-                whatsapp: document.getElementById('cfg-whatsapp').value,
-                email: document.getElementById('cfg-email').value,
-                servicos,
-                pix: pixData,
-                horarios: { dias, inicio: document.getElementById('cfg-hora-inicio').value, fim: document.getElementById('cfg-hora-fim').value }
-            };
-            if (logoBase64) data.logo = logoBase64;
-            
-            if (!state.editing) {
-                data.plano = 'Grátis';
-                data.contagemMes = 0;
-                data.criadoEm = serverTimestamp();
-            }
-
-            await setDoc(doc(db, 'negocios', state.user.uid), data, { merge: true });
-            state.negocio = { ...state.negocio, ...data };
-            
-            btn.disabled = false; btn.textContent = originalText;
-            state.editing = false;
-            setupOwnerDashboard();
         };
 
         document.getElementById('cfg-pix-toggle').onchange = (e) => {
@@ -644,13 +864,36 @@
             servicosList.innerHTML = '';
             if (state.negocio.servicos && state.negocio.servicos.length > 0) {
                  state.negocio.servicos.forEach(s => {
-                      const div = document.createElement('div'); div.className = 'flex gap-2 servico-item';
-                      div.innerHTML = `<input type="text" value="${s.nome}" placeholder="Ex: Cabelo" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" value="${s.preco}" placeholder="0.00" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><button type="button" class="text-red-500" onclick="this.parentElement.remove()">✕</button>`;
+                      const div = document.createElement('div'); div.className = 'flex gap-2 items-center servico-item bg-darkBg/30 p-2 rounded-lg border border-gray-700/50';
+                      const sUrl = s.imageUrl || s.imagem || '';
+                      div.innerHTML = `
+                        <div class="relative w-24 h-12 flex-shrink-0 bg-darkBg border border-gray-700 rounded-lg overflow-hidden group">
+                            <img src="${sUrl}" class="w-full h-full object-cover ${ sUrl ? '' : 'hidden'}">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg>
+                            </div>
+                            <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer srv-file" onchange="window.previewSrvImage(this)">
+                            <input type="hidden" class="srv-img-url" value="${sUrl}">
+                        </div>
+                        <input type="text" value="${s.nome}" placeholder="Nome" required class="flex-1 bg-transparent border-none text-sm focus:ring-0 text-white p-1">
+                        <input type="number" value="${s.preco}" placeholder="0.00" step="0.01" required class="w-16 bg-transparent border-none text-sm focus:ring-0 text-white text-right p-1">
+                        <button type="button" class="text-red-500 p-1 hover:bg-red-500/10 rounded" onclick="this.parentElement.remove()">✕</button>`;
                       servicosList.appendChild(div);
                  });
             } else {
-                 const div = document.createElement('div'); div.className = 'flex gap-2 servico-item';
-                 div.innerHTML = `<input type="text" placeholder="Ex: Cabelo" required class="w-2/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><input type="number" placeholder="0.00" step="0.01" required class="w-1/3 bg-darkBg border border-gray-700 rounded-lg p-2 text-white"><button type="button" class="text-red-500" onclick="this.parentElement.remove()">✕</button>`;
+                const div = document.createElement('div'); div.className = 'flex gap-2 items-center servico-item bg-darkBg/30 p-2 rounded-lg border border-gray-700/50';
+                div.innerHTML = `
+                    <div class="relative w-24 h-12 flex-shrink-0 bg-darkBg border border-gray-700 rounded-lg overflow-hidden group">
+                        <img src="" class="w-full h-full object-cover hidden">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg>
+                        </div>
+                        <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer srv-file" onchange="window.previewSrvImage(this)">
+                        <input type="hidden" class="srv-img-url" value="">
+                    </div>
+                    <input type="text" placeholder="Nome" required class="flex-1 bg-transparent border-none text-sm focus:ring-0 text-white p-1">
+                    <input type="number" placeholder="0.00" step="0.01" required class="w-16 bg-transparent border-none text-sm focus:ring-0 text-white text-right p-1">
+                    <button type="button" class="text-red-500 p-1 hover:bg-red-500/10 rounded" onclick="this.parentElement.remove()">✕</button>`;
                  servicosList.appendChild(div);
             }
             
@@ -681,56 +924,160 @@
             document.getElementById('dash-limit').textContent = limit;
             if(limit !== '∞') document.getElementById('dash-progress').style.width = Math.min(100, (count/limit)*100) + '%';
 
-            // Load Agendamentos
+            // Load Agendamentos using onSnapshot for real-time and voice notifications
             const q = query(collection(db, 'agendamentos'), where('negocioId', '==', state.user.uid));
-            const snap = await getDocs(q);
-            const hojeEl = document.getElementById('tab-hoje'); const semanaEl = document.getElementById('tab-semana');
-            hojeEl.innerHTML = ''; semanaEl.innerHTML = '';
-            
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            snap.docs.forEach(doc => {
-                const ag = doc.data();
-                const servicosStr = ag.servicos ? ag.servicos.map(s=>s.nome).join(' + ') + ' - R$ ' + ag.servicos.reduce((a,c)=>a+c.preco,0).toFixed(2) : (ag.servico ? ag.servico.nome + ' - R$ ' + ag.servico.preco : 'Serviço');
-                
-                let badgeHtml = '';
-                let btnMarkPaid = '';
-                if(ag.paymentStatus === 'pix') {
-                    badgeHtml = `<span class="bg-yellow-500/20 text-yellow-500 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">💰 PIX enviado</span>`;
-                    btnMarkPaid = `<button onclick="window.marcarComoPago('${doc.id}', this)" class="text-[11px] bg-darkCard border border-green-500/50 hover:bg-green-600/20 text-green-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Marcar como pago</button>`;
-                } else if(ag.paymentStatus === 'local') {
-                    badgeHtml = `<span class="bg-gray-500/20 text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">🏪 Pagar no local</span>`;
-                    btnMarkPaid = `<button onclick="window.marcarComoPago('${doc.id}', this)" class="text-[11px] bg-darkCard border border-green-500/50 hover:bg-green-600/20 text-green-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Marcar como pago</button>`;
-                } else if(ag.paymentStatus === 'pago') {
-                    badgeHtml = `<span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">✅ Pago</span>`;
-                }
+            let isFirstSnapshot = true;
+            if (window.unsubAgendamentos) window.unsubAgendamentos();
 
-                const card = `<div class="bg-darkBg p-4 rounded-xl border border-gray-700 flex flex-col gap-3 shadow-sm mb-3">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1 pr-2">
-                            <div class="flex items-center flex-wrap gap-y-1 mb-1">
-                                <p class="font-bold text-sm text-white">${ag.clienteNome}</p>
-                                ${badgeHtml}
+            window.unsubAgendamentos = onSnapshot(q, (snap) => {
+                const hojeEl = document.getElementById('tab-hoje'); const semanaEl = document.getElementById('tab-semana');
+                hojeEl.innerHTML = ''; semanaEl.innerHTML = '';
+                window.agendasHoje = [];
+                
+                const todayStr = new Date().toISOString().split('T')[0];
+
+                if (!isFirstSnapshot) {
+                    snap.docChanges().forEach(change => {
+                        const ag = change.doc.data();
+                        const srvStr = ag.servicos ? ag.servicos.map(s => s.nome).join(' e ') : (ag.servico ? ag.servico.nome : 'Serviço');
+                        const dataHoraStr = `${ag.data.split('-').reverse().join('/')} às ${ag.horario}`;
+                        
+                        if (change.type === 'added') {
+                            window.falar(`Novo agendamento! ${ag.clienteNome} marcou ${srvStr} para ${dataHoraStr}`);
+                        } else if (change.type === 'modified') {
+                            // Check if cancelled
+                            const wasStatus = window.lastStatus[change.doc.id];
+                            if (ag.status === 'cancelado' && wasStatus !== 'cancelado') {
+                                window.falar(`Atenção! ${ag.clienteNome} cancelou o agendamento de ${ag.data.split('-').reverse().join('/')} às ${ag.horario}`);
+                            }
+
+                            // Check if payment just confirmed
+                            const wasPago = window.lastPaymentStatus[change.doc.id];
+                            if (ag.paymentStatus === 'pago' || ag.paymentStatus === 'pix') {
+                                if (wasPago !== 'pago' && wasPago !== 'pix') {
+                                    const total = ag.servicos ? ag.servicos.reduce((a,c)=>a+c.preco,0) : (ag.servico ? ag.servico.preco : 0);
+                                    window.falar(`Pagamento confirmado! Pix de ${total} reais recebido de ${ag.clienteNome}`);
+                                }
+                            }
+                        } else if (change.type === 'removed') {
+                            window.falar(`Atenção! ${ag.clienteNome} cancelou o agendamento de ${dataHoraStr}`);
+                        }
+                    });
+                }
+                
+                // Track statuses
+                snap.docs.forEach(docSnap => {
+                    const data = docSnap.data();
+                    window.lastPaymentStatus[docSnap.id] = data.paymentStatus;
+                    window.lastStatus[docSnap.id] = data.status || 'ativo';
+                });
+                
+                snap.docs.forEach(docSnap => {
+                    const ag = docSnap.data();
+                    if (ag.status === 'cancelado') return;
+                    
+                    const servicosStr = ag.servicos ? ag.servicos.map(s => (typeof s === 'object' ? s.nome : s)).join(' + ') + ' - R$ ' + ag.servicos.reduce((a, c) => a + (typeof c === 'object' ? c.preco : 0), 0).toFixed(2) : (ag.servico ? (typeof ag.servico === 'object' ? ag.servico.nome : ag.servico) + ' - R$ ' + (typeof ag.servico === 'object' ? ag.servico.preco : 0) : 'Serviço');
+                    
+                    let badgeHtml = '';
+                    if(ag.paymentStatus === 'pix') {
+                        badgeHtml = `<span class="bg-yellow-500/20 text-yellow-500 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">💰 PIX enviado</span>`;
+                    } else if(ag.paymentStatus === 'local') {
+                        badgeHtml = `<span class="bg-gray-500/20 text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">🏪 Pagar no local</span>`;
+                    } else if(ag.paymentStatus === 'pago') {
+                        badgeHtml = `<span class="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2 whitespace-nowrap">✅ Pago</span>`;
+                    }
+
+                    let btnMarkPaid = '';
+                    if(ag.paymentStatus !== 'pago') {
+                        btnMarkPaid = `<button onclick="window.marcarComoPago('${docSnap.id}', this)" class="text-[11px] bg-darkCard border border-green-500/50 hover:bg-green-600/20 text-green-400 px-3 py-1.5 rounded-lg transition whitespace-nowrap">Marcar como pago</button>`;
+                    }
+
+                    const card = `<div class="bg-darkBg p-4 rounded-xl border border-gray-700 flex flex-col gap-3 shadow-sm mb-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 pr-2">
+                                <div class="flex items-center flex-wrap gap-y-1 mb-1">
+                                    <p class="font-bold text-sm text-white">${ag.clienteNome}</p>
+                                    ${badgeHtml}
+                                </div>
+                                <p class="text-xs text-gray-400 capitalize leading-relaxed">${servicosStr}</p>
+                                <p class="text-xs font-semibold text-brandBlue mt-1.5">${ag.data.split('-').reverse().join('/')} às ${ag.horario}</p>
                             </div>
-                            <p class="text-xs text-gray-400 capitalize leading-relaxed">${servicosStr}</p>
-                            <p class="text-xs font-semibold text-brandBlue mt-1.5">${ag.data.split('-').reverse().join('/')} às ${ag.horario}</p>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <a href="https://wa.me/${ag.clienteWhatsapp}" target="_blank" class="bg-green-600/20 text-green-500 p-2.5 rounded-full hover:bg-green-600/40 transition-colors flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                </a>
+                                <button onclick="window.abrirModalExcluir('${docSnap.id}', '${ag.clienteNome.replace(/'/g, '\\\'')}')" class="bg-red-600/20 text-red-500 p-2.5 rounded-full hover:bg-red-600/40 transition-colors flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <a href="https://wa.me/${ag.clienteWhatsapp}" target="_blank" class="bg-green-600/20 text-green-500 p-2.5 rounded-full hover:bg-green-600/40 transition-colors flex-shrink-0">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                            </a>
-                            <button onclick="window.abrirModalExcluir('${doc.id}', '${ag.clienteNome.replace(/'/g, '\\\'')}')" class="bg-red-600/20 text-red-500 p-2.5 rounded-full hover:bg-red-600/40 transition-colors flex-shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
-                        </div>
-                    </div>
-                    ${btnMarkPaid ? `<div class="border-t border-gray-700/50 pt-2.5 mt-1 flex justify-end">${btnMarkPaid}</div>` : ''}
-                </div>`;
-                if(ag.data === todayStr) hojeEl.innerHTML += card;
-                else semanaEl.innerHTML += card;
+                        ${btnMarkPaid ? `<div class="border-t border-gray-700/50 pt-2.5 mt-1 flex justify-end">${btnMarkPaid}</div>` : ''}
+                    </div>`;
+                    if(ag.data === todayStr) {
+                        hojeEl.innerHTML += card;
+                        window.agendasHoje.push(ag);
+                    }
+                    else semanaEl.innerHTML += card;
+                });
+                if(!hojeEl.innerHTML) hojeEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum agendamento hoje.</p>';
+                if(!semanaEl.innerHTML) semanaEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum outro agendamento na semana.</p>';
+                
+                isFirstSnapshot = false;
             });
-            if(!hojeEl.innerHTML) hojeEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum agendamento hoje.</p>';
-            if(!semanaEl.innerHTML) semanaEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum outro agendamento na semana.</p>';
+            
+            // Voice Toggle Logic
+            const btnVoiceToggle = document.getElementById('btn-voice-toggle');
+            if(btnVoiceToggle) {
+                btnVoiceToggle.onclick = () => {
+                    window.voiceEnabled = !window.voiceEnabled;
+                    const offIcon = document.getElementById('icon-voice-off');
+                    const onIcon = document.getElementById('icon-voice-on');
+                    if (window.voiceEnabled) {
+                        offIcon.classList.add('hidden-view');
+                        onIcon.classList.remove('hidden-view');
+                        // Speak to confirm (and unlock audio context in browser)
+                        const msg = new SpeechSynthesisUtterance("Notificações de voz ativadas");
+                        msg.lang = 'pt-BR';
+                        speechSynthesis.speak(msg);
+                    } else {
+                        offIcon.classList.remove('hidden-view');
+                        onIcon.classList.add('hidden-view');
+                        speechSynthesis.cancel();
+                    }
+                };
+            }
+
+            // Summary Logic
+            const btnSummary = document.getElementById('btn-day-summary');
+            if(btnSummary) {
+                btnSummary.onclick = () => {
+                    if (!window.voiceEnabled) {
+                        alert("Ative as notificações de voz primeiro!");
+                        return;
+                    }
+                    
+                    if (window.agendasHoje.length === 0) {
+                        window.falar("Você não tem agendamentos para hoje.");
+                        return;
+                    }
+
+                    // Sort chronological
+                    const sorted = [...window.agendasHoje].sort((a,b) => a.horario.localeCompare(b.horario));
+                    const totalVal = sorted.reduce((sum, ag) => {
+                        const val = ag.servicos ? ag.servicos.reduce((a,c)=>a+c.preco,0) : (ag.servico ? ag.servico.preco : 0);
+                        return sum + val;
+                    }, 0);
+
+                    let texto = `Resumo do dia. Você tem ${sorted.length} agendamentos hoje. `;
+                    sorted.forEach(ag => {
+                        const srvStr = ag.servicos ? ag.servicos.map(s => s.nome).join(' e ') : (ag.servico ? ag.servico.nome : 'serviço');
+                        texto += `Às ${ag.horario}, ${ag.clienteNome} com ${srvStr}. `;
+                    });
+                    texto += `O valor total do dia é de ${totalVal.toFixed(2)} reais.`;
+                    
+                    window.falar(texto);
+                };
+            }
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.onclick = () => {
@@ -816,9 +1163,24 @@
         // Client Flow Logic
         async function setupClientView(negocioId) {
             Views.show('view-loading');
-            const snap = await getDoc(doc(db, 'negocios', negocioId));
-            if (!snap.exists()) { document.body.innerHTML = '<h1 class="text-center mt-20 text-xl font-bold">Negócio não encontrado.</h1>'; return; }
+            let snap = await getDoc(doc(db, 'negocios', negocioId));
+            
+            // Auto-Cura: Se não achou em 'negocios', tenta em 'negocio'
+            if (!snap.exists()) {
+                console.warn("Negócio não encontrado em 'negocios', tentando 'negocio'...");
+                snap = await getDoc(doc(db, 'negocio', negocioId));
+            }
+
+            if (!snap.exists()) { 
+                document.body.innerHTML = `
+                    <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+                        <h1 class="text-2xl font-bold mb-2">Ops! Negócio não encontrado.</h1>
+                        <p class="text-gray-400">Verifique o link ou tente novamente mais tarde.</p>
+                    </div>`; 
+                return; 
+            }
             state.clientNegocio = snap.data();
+            state.clientNegocio.uid = negocioId; // Garante o UID para agendamentos
             
             // Limit check
             const limit = state.clientNegocio.plano === 'Grátis' ? 10 : (state.clientNegocio.plano === 'Pro' ? 50 : 99999);
@@ -849,13 +1211,48 @@
         }
 
         function renderClientServices() {
-            const cont = document.getElementById('client-services'); cont.innerHTML = '';
+            const cont = document.getElementById('client-services'); 
+            cont.innerHTML = '';
+            
+            if (!state.clientNegocio.servicos) return;
+
             state.clientNegocio.servicos.forEach((srv, i) => {
+                console.log("Debug Serviço Firestore:", srv);
+                const isObj = (typeof srv === 'object' && srv !== null);
+                const srvNome = isObj ? srv.nome : srv;
+                const srvPreco = isObj ? (srv.preco || 0) : 0;
+                
+                // Aggressive URL search
+                let imgUrl = isObj ? (srv.imageUrl || srv.imagem || '') : '';
+                if (isObj && !imgUrl) {
+                    for (let key in srv) {
+                        if (typeof srv[key] === 'string' && srv[key].startsWith('http')) {
+                            imgUrl = srv[key];
+                            break;
+                        }
+                    }
+                }
+
                 const btn = document.createElement('button');
-                btn.className = 'w-full text-left p-4 bg-darkBg border border-gray-700 rounded-xl hover:border-brandBlue transition flex justify-between items-center';
-                btn.innerHTML = `<span class="font-bold">${srv.nome}</span><span class="text-brandBlue">R$ ${srv.preco.toFixed(2)}</span>`;
+                btn.className = 'w-full text-left bg-darkBg border border-gray-700 rounded-xl hover:border-brandBlue transition flex flex-col overflow-hidden group mb-3';
+                
+                const imgHtml = imgUrl ? 
+                    `<div class="w-full h-[120px] bg-darkCard border-b border-gray-700/50 overflow-hidden">
+                        <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>` : '';
+
+                btn.innerHTML = `
+                    ${imgHtml}
+                    <div class="p-4">
+                        <div class="flex justify-between items-center">
+                            <p class="font-bold text-white text-base truncate flex-1 pr-2">${srvNome}</p>
+                            <p class="text-brandBlue font-bold whitespace-nowrap">R$ ${srvPreco.toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+                
                 btn.onclick = () => {
-                    const idx = state.selectedServices.findIndex(s => s.nome === srv.nome);
+                    const idx = state.selectedServices.findIndex(s => (typeof s === 'object' ? s.nome : s) === srvNome);
                     if (idx > -1) {
                         state.selectedServices.splice(idx, 1);
                         btn.classList.remove('border-brandBlue', 'ring-2', 'ring-brandBlue');
@@ -866,9 +1263,9 @@
                     
                     const sumEl = document.getElementById('client-services-summary');
                     if (state.selectedServices.length > 0) {
-                        const total = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0);
-                        const names = state.selectedServices.map(s => s.nome).join(' + ');
-                        sumEl.innerHTML = `<strong>Serviços selecionados:</strong> ${names} <br><div class="text-white font-bold mt-1">Total: R$ ${total.toFixed(2)}</div>`;
+                        const total = state.selectedServices.reduce((acc, curr) => acc + (typeof curr === 'object' ? curr.preco : 0), 0);
+                        const names = state.selectedServices.map(s => typeof s === 'object' ? s.nome : s).join(' + ');
+                        sumEl.innerHTML = `<strong>Selecionados:</strong> ${names} <br><div class="text-white font-bold mt-1 text-lg">Total: R$ ${total.toFixed(2)}</div>`;
                         sumEl.classList.remove('hidden-view');
                         document.getElementById('client-summary-price').textContent = `R$ ${total.toFixed(2)}`;
                         document.getElementById('client-step-2').classList.remove('hidden-view');
@@ -1031,8 +1428,8 @@
                 
                 Views.show('view-success');
                 const [y, m, d] = state.selectedDate.split('-');
-                const totalVal = state.selectedServices.reduce((acc, curr) => acc + curr.preco, 0).toFixed(2);
-                const namesText = state.selectedServices.map(s => s.nome).join(' + ');
+                const totalVal = state.selectedServices.reduce((acc, curr) => acc + (typeof curr === 'object' ? curr.preco : 0), 0).toFixed(2);
+                const namesText = state.selectedServices.map(s => (typeof s === 'object' ? s.nome : s)).join(' + ');
                 
                 let waText = `Novo agendamento HoraFácil!\n*Nome:* ${nome}\n*Serviços:* ${namesText}\n*Total:* R$ ${totalVal}\n*Data:* ${d}/${m}/${y}\n*Horário:* ${state.selectedTime}\n*WhatsApp Cliente:* ${zap}`;
                 
@@ -1133,5 +1530,46 @@
 
         init();
     </script>
+    <!-- CHATBOT FLOATING BUTTON -->
+    <button id="btn-open-chat" class="fixed bottom-6 right-6 w-14 h-14 bg-brandBlue text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:scale-110 transition-transform animate-bounce active:scale-95">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    </button>
+
+    <!-- CHATBOT WINDOW -->
+    <div id="chat-window" class="hidden-view fixed bottom-24 right-6 w-[350px] max-w-[85vw] h-[500px] max-h-[70vh] bg-darkCard border border-gray-700 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden transition-all duration-300">
+        <!-- Header -->
+        <div class="bg-brandBlue p-4 flex justify-between items-center text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg">🤖</div>
+                <div>
+                    <p class="font-bold text-sm leading-tight" id="chat-bot-name">Assistente</p>
+                    <p class="text-[10px] opacity-80">Online agora</p>
+                </div>
+            </div>
+            <button id="btn-close-chat" class="text-white hover:bg-white/10 p-1 rounded">✕</button>
+        </div>
+        
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0f172a] custom-scrollbar">
+            <div class="flex justify-start">
+                <div class="bg-darkCard border border-gray-700 p-3 rounded-2xl rounded-tl-none max-w-[85%] text-sm text-gray-200 shadow-sm">
+                    Olá! Sou o assistente virtual. Como posso ajudar você hoje?
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="chat-typing" class="hidden-view px-4 py-2 text-[10px] text-gray-500 italic">Gemini está escrevendo...</div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-darkCard border-t border-gray-700">
+            <form id="form-chat" class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Digite sua dúvida..." class="flex-1 bg-darkBg border border-gray-700 rounded-full px-4 py-2 text-sm text-white focus:border-brandBlue focus:outline-none placeholder:text-gray-600">
+                <button type="submit" class="bg-brandBlue hover:bg-blue-600 text-white p-2 rounded-full transition-colors shadow-md active:scale-95">
+                    <svg class="w-5 h-5 rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
