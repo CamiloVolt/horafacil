@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoraFácil</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
@@ -19,7 +19,7 @@
         .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
         .bubble { position: absolute; background: rgba(96, 165, 250, 0.2); border-radius: 50%; transition: transform 0.2s ease-out; animation: float 10s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.1); } }
-        .sloth-container { transform-origin: top center; animation: swing 4s infinite ease-in-out; display: inline-block; }
+        .mascot-container { transform-origin: top center; animation: swing 4s infinite ease-in-out; display: inline-block; }
         @keyframes swing { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
         .glow { box-shadow: 0 0 30px 10px rgba(96, 165, 250, 0.4); border-radius: 50%; }
         .custom-scrollbar::-webkit-scrollbar { height: 6px; }
@@ -56,18 +56,25 @@
                     <line class="clock-sec" x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
                 </svg>
 
-                <!-- Sloth Foreground -->
-                <div class="sloth-container w-20 h-20 relative z-10 drop-shadow-2xl">
+                <!-- Mascot Foreground (Owl) -->
+                <div class="mascot-container w-20 h-20 relative z-10 drop-shadow-2xl">
                     <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
-                        <path d="M30,20 Q25,40 40,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                        <path d="M70,22 Q75,40 60,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                        <ellipse cx="50" cy="55" rx="20" ry="25" fill="#cd853f"/>
-                        <ellipse cx="50" cy="50" rx="14" ry="10" fill="#f5deb3"/>
-                        <ellipse cx="43" cy="50" rx="4" ry="3" fill="#8b4513"/><ellipse cx="57" cy="50" rx="4" ry="3" fill="#8b4513"/>
-                        <circle cx="43" cy="50" r="1.5" fill="#fff"/><circle cx="57" cy="50" r="1.5" fill="#fff"/>
-                        <ellipse cx="50" cy="53" rx="2" ry="1.5" fill="#000"/>
-                        <path d="M47,56 Q50,58 53,56" stroke="#000" stroke-width="1" fill="none"/>
+                        <path d="M0,80 Q50,85 100,75" stroke="#8b5a2b" stroke-width="6" fill="none"/>
+                        <polygon points="32,35 25,15 45,28" fill="#cd853f"/>
+                        <polygon points="68,35 75,15 55,28" fill="#cd853f"/>
+                        <ellipse cx="28" cy="55" rx="6" ry="16" fill="#a0522d"/>
+                        <ellipse cx="72" cy="55" rx="6" ry="16" fill="#a0522d"/>
+                        <ellipse cx="50" cy="53" rx="22" ry="26" fill="#cd853f"/>
+                        <ellipse cx="50" cy="62" rx="14" ry="12" fill="#f5deb3"/>
+                        <path d="M44,61 L46.5,63 L49,61 M51,61 L53.5,63 L56,61 M47.5,66 L50,68 L52.5,66" stroke="#cd853f" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        <circle cx="38" cy="38" r="13" fill="#f5deb3"/>
+                        <circle cx="62" cy="38" r="13" fill="#f5deb3"/>
+                        <circle cx="38" cy="38" r="4.5" fill="#000"/>
+                        <circle cx="36" cy="36" r="1.5" fill="#fff"/>
+                        <circle cx="62" cy="38" r="4.5" fill="#000"/>
+                        <circle cx="60" cy="36" r="1.5" fill="#fff"/>
+                        <polygon points="47,42 53,42 50,49" fill="#d97706"/>
+                        <path d="M42,75 L42,83 M46,76 L46,84 M54,76 L54,84 M58,75 L58,83" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
                     </svg>
                 </div>
             </div>
@@ -161,18 +168,25 @@
                         <line class="clock-sec" x1="50" y1="50" x2="50" y2="10" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
                     </svg>
                     
-                    <!-- Sloth Foreground -->
-                    <div class="sloth-container w-10 h-10 relative z-10 drop-shadow-lg">
+                    <!-- Mascot Foreground (Owl) -->
+                    <div class="mascot-container w-10 h-10 relative z-10 drop-shadow-lg">
                         <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
-                            <path d="M30,20 Q25,40 40,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                            <path d="M70,22 Q75,40 60,50" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                            <ellipse cx="50" cy="55" rx="20" ry="25" fill="#cd853f"/>
-                            <ellipse cx="50" cy="50" rx="14" ry="10" fill="#f5deb3"/>
-                            <ellipse cx="43" cy="50" rx="4" ry="3" fill="#8b4513"/><ellipse cx="57" cy="50" rx="4" ry="3" fill="#8b4513"/>
-                            <circle cx="43" cy="50" r="1.5" fill="#fff"/><circle cx="57" cy="50" r="1.5" fill="#fff"/>
-                            <ellipse cx="50" cy="53" rx="2" ry="1.5" fill="#000"/>
-                            <path d="M47,56 Q50,58 53,56" stroke="#000" stroke-width="1" fill="none"/>
+                            <path d="M0,80 Q50,85 100,75" stroke="#8b5a2b" stroke-width="6" fill="none"/>
+                            <polygon points="32,35 25,15 45,28" fill="#cd853f"/>
+                            <polygon points="68,35 75,15 55,28" fill="#cd853f"/>
+                            <ellipse cx="28" cy="55" rx="6" ry="16" fill="#a0522d"/>
+                            <ellipse cx="72" cy="55" rx="6" ry="16" fill="#a0522d"/>
+                            <ellipse cx="50" cy="53" rx="22" ry="26" fill="#cd853f"/>
+                            <ellipse cx="50" cy="62" rx="14" ry="12" fill="#f5deb3"/>
+                            <path d="M44,61 L46.5,63 L49,61 M51,61 L53.5,63 L56,61 M47.5,66 L50,68 L52.5,66" stroke="#cd853f" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                            <circle cx="38" cy="38" r="13" fill="#f5deb3"/>
+                            <circle cx="62" cy="38" r="13" fill="#f5deb3"/>
+                            <circle cx="38" cy="38" r="4.5" fill="#000"/>
+                            <circle cx="36" cy="36" r="1.5" fill="#fff"/>
+                            <circle cx="62" cy="38" r="4.5" fill="#000"/>
+                            <circle cx="60" cy="36" r="1.5" fill="#fff"/>
+                            <polygon points="47,42 53,42 50,49" fill="#d97706"/>
+                            <path d="M42,75 L42,83 M46,76 L46,84 M54,76 L54,84 M58,75 L58,83" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
                         </svg>
                     </div>
                 </div>
@@ -293,16 +307,22 @@
         <!-- SUCCESS VIEW -->
         <div id="view-success" class="hidden-view min-h-[80vh] flex flex-col items-center justify-center text-center">
             <div class="text-6xl mb-4 animate-bounce">🎉</div>
-            <div class="sloth-container w-32 h-32 relative mb-6">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0,20 Q50,15 100,25" stroke="#8b5a2b" stroke-width="6" fill="none"/>
-                    <path d="M30,50 Q25,20 40,20" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                    <path d="M70,50 Q75,20 60,20" stroke="#a0522d" stroke-width="8" stroke-linecap="round" fill="none"/>
-                    <ellipse cx="50" cy="55" rx="20" ry="25" fill="#cd853f"/>
-                    <ellipse cx="50" cy="50" rx="14" ry="10" fill="#f5deb3"/>
-                    <path d="M40,50 Q43,48 46,50" stroke="#000" stroke-width="2" fill="none"/>
-                    <path d="M54,50 Q57,48 60,50" stroke="#000" stroke-width="2" fill="none"/>
-                    <path d="M48,65 Q50,68 52,65" stroke="#000" stroke-width="2" fill="none"/>
+            <div class="mascot-container w-32 h-32 relative mb-6">
+                <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0,80 Q50,85 100,75" stroke="#8b5a2b" stroke-width="6" fill="none"/>
+                    <polygon points="32,35 25,15 45,28" fill="#cd853f"/>
+                    <polygon points="68,35 75,15 55,28" fill="#cd853f"/>
+                    <path d="M28,50 Q15,40 20,25 Q25,38 28,50" fill="#a0522d"/>
+                    <path d="M72,50 Q85,40 80,25 Q75,38 72,50" fill="#a0522d"/>
+                    <ellipse cx="50" cy="53" rx="22" ry="26" fill="#cd853f"/>
+                    <ellipse cx="50" cy="62" rx="14" ry="12" fill="#f5deb3"/>
+                    <path d="M44,61 L46.5,63 L49,61 M51,61 L53.5,63 L56,61 M47.5,66 L50,68 L52.5,66" stroke="#cd853f" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                    <circle cx="38" cy="38" r="13" fill="#f5deb3"/>
+                    <circle cx="62" cy="38" r="13" fill="#f5deb3"/>
+                    <path d="M34,38 Q38,34 42,38" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M58,38 Q62,34 66,38" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <polygon points="47,42 53,42 50,49" fill="#d97706"/>
+                    <path d="M42,75 L42,83 M46,76 L46,84 M54,76 L54,84 M58,75 L58,83" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
                 </svg>
             </div>
             <h2 class="text-2xl font-bold text-white mb-2">Agendamento Realizado!</h2>
