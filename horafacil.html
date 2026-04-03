@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HoraFácil</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(err => console.error('SW falhou:', err));
+            });
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
@@ -704,26 +712,26 @@
                 b.style.animationDelay = (Math.random() * 5) + 's'; b.style.animationDuration = (Math.random() * 10 + 5) + 's';
                 container.appendChild(b);
             }
-            let lastClawTime = 0;
+            let lastFeatherTime = 0;
             document.addEventListener('mousemove', (e) => {
                 const now = Date.now();
-                if (now - lastClawTime > 50) {
-                    lastClawTime = now;
-                    const claw = document.createElement('div');
-                    claw.className = 'fixed pointer-events-none transition-opacity duration-1000';
-                    claw.style.zIndex = '0';
+                if (now - lastFeatherTime > 50) {
+                    lastFeatherTime = now;
+                    const feather = document.createElement('div');
+                    feather.className = 'fixed pointer-events-none transition-opacity duration-1000';
+                    feather.style.zIndex = '0';
                     const size = 20 + Math.random() * 10;
-                    claw.style.width = size + 'px';
-                    claw.style.height = size + 'px';
-                    claw.style.left = (e.clientX - size/2 + (Math.random() * 20 - 10)) + 'px';
-                    claw.style.top = (e.clientY - size/2 + (Math.random() * 20 - 10)) + 'px';
-                    claw.style.transform = `rotate(${Math.random() * 360}deg)`;
-                    claw.style.opacity = (0.5 + Math.random() * 0.2).toFixed(2);
-                    claw.innerHTML = `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><path d="M20,10 Q40,50 20,90 M50,5 Q70,50 50,95 M80,10 Q100,50 80,90" stroke="#c8a882" stroke-width="12" stroke-linecap="round" fill="none"/></svg>`;
+                    feather.style.width = size + 'px';
+                    feather.style.height = size + 'px';
+                    feather.style.left = (e.clientX - size/2 + (Math.random() * 20 - 10)) + 'px';
+                    feather.style.top = (e.clientY - size/2 + (Math.random() * 20 - 10)) + 'px';
+                    feather.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    feather.style.opacity = (0.5 + Math.random() * 0.2).toFixed(2);
+                    feather.innerHTML = `<svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><path d="M20,80 C10,40 50,10 80,20 C90,50 60,90 20,80 Z" fill="#cd853f"/><path d="M15,85 Q45,55 80,20" stroke="#f5deb3" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`;
                     
-                    document.body.appendChild(claw);
-                    setTimeout(() => claw.style.opacity = '0', 50);
-                    setTimeout(() => claw.remove(), 1050);
+                    document.body.appendChild(feather);
+                    setTimeout(() => feather.style.opacity = '0', 50);
+                    setTimeout(() => feather.remove(), 1050);
                 }
             });
         }
